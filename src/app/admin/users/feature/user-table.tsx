@@ -1,5 +1,7 @@
 'use client'
 
+import AddUser from '@/app/admin/users/feature/add-user'
+import EditUser from '@/app/admin/users/feature/edit-user'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import {
@@ -12,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -85,6 +88,29 @@ export const columns: ColumnDef<AccountType>[] = [
     },
     enableSorting: true,
     accessorFn: (row, index) => index // Cho phép sắp xếp theo index
+  },
+  {
+    accessorKey: 'avatar',
+    header: 'Avatar',
+    cell: ({ row }) => {
+      const avatarUrl = row.getValue('avatar') as string
+      const user = row.original as AccountItem
+      return (
+        <Avatar className='aspect-square w-[40px] h-[40px] rounded-md object-cover'>
+          <AvatarImage
+            src={avatarUrl ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${avatarUrl}` : undefined}
+          />
+          <AvatarFallback className='rounded-none'>
+            {user?.full_name
+              ?.split(' ')
+              .map((word: any) => word[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      )
+    }
   },
   {
     accessorKey: 'full_name',
@@ -260,15 +286,9 @@ export default function UserTable() {
     <AccountTableContext.Provider value={{ userIdEdit, setUserIdEdit, userDelete, setUserDelete }}>
       <div className='flex items-center justify-between pt-6 px-6'>
         <h1 className='text-2xl font-bold'>Users list</h1>
-        <div className='flex items-center space-x-3'>
-          <Button variant={'default'} className='px-4 py-2 hover:cursor-pointer'>
-            Add User
-            <PlusIcon />
-          </Button>
-        </div>
       </div>
       <div className='w-full px-6'>
-        {/* <EditUser id={userIdEdit} setId={setUserIdEdit} onSubmitSuccess={() => {}} /> */}
+        <EditUser id={userIdEdit} setId={setUserIdEdit} onSubmitSuccess={() => {}} />
         <AlertDialogDeleteAccount userDelete={userDelete} setUserDelete={setUserDelete} />
         <div className='flex items-center py-4'>
           <Input
@@ -277,7 +297,9 @@ export default function UserTable() {
             onChange={(event) => table.getColumn('email')?.setFilterValue(event.target.value)}
             className='max-w-sm'
           />
-          <div className='ml-auto flex items-center gap-2'>{/* <AddUser /> */}</div>
+          <div className='ml-auto flex items-center gap-2'>
+            <AddUser />
+          </div>
         </div>
         <div className='rounded-md border'>
           <Table>

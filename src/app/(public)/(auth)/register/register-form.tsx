@@ -1,7 +1,6 @@
 'use client'
 
 import { ROUTES } from '@/common/path'
-import { DatePicker } from '@/components/date-picker'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -140,14 +139,14 @@ export default function RegisterForm() {
                     <Label htmlFor='date_of_birth' className='text-[16px] font-medium'>
                       Date of birth<sup aria-hidden='true'>*</sup>
                     </Label>
-                    <DatePicker
+                    {/* <DatePicker
                       endYear={new Date().getFullYear()}
                       value={field.value ? new Date(field.value) : undefined}
                       onDateChange={(date) => {
                         const formattedDate = format(date, 'yyyy-MM-dd')
                         field.onChange(formattedDate)
                       }}
-                    />
+                    /> */}
                     <FormMessage />
                   </div>
                 </FormItem>

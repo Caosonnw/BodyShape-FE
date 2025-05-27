@@ -25,6 +25,11 @@ import {
   SidebarMenuItem,
   SidebarRail
 } from '@/components/ui/sidebar'
+import { useAlert } from '@/context/AlertContext'
+import { useAppContext } from '@/context/AppProvider'
+import { handleErrorApi } from '@/lib/utils'
+import { useLogoutMutation } from '@/queries/useAuth'
+import { useAccountMe } from '@/queries/useUser'
 import {
   BadgeCheck,
   Bell,
@@ -51,10 +56,10 @@ import {
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
-import { title } from 'process'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-const data = {
+const dataSideBar = {
   navMain: [
     {
       title: 'Dash Board',
@@ -139,14 +144,36 @@ const data = {
   ]
 }
 
-const user = {
-  name: 'shadcn',
-  email: 'm@example.com',
-  avatar: '/avatars/shadcn.jpg'
-}
 export function AppSidebar({ children }: { children: React.ReactNode }) {
+  const logoutMutation = useLogoutMutation()
+  const router = useRouter()
   const { theme } = useTheme()
+  const [accessToken, setAccessToken] = React.useState<string | null>(null)
+  const { setRole } = useAppContext()
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('accessToken')
+      setAccessToken(token)
+    }
+  }, [accessToken])
+  const { data } = useAccountMe(accessToken)
+  const user = data?.payload.data
+  const { showAlert } = useAlert()
 
+  const handleLogout = async () => {
+    if (logoutMutation.isPending) return
+    try {
+      await logoutMutation.mutateAsync()
+      showAlert('Logged out successfully', 'success')
+      setRole()
+      router.push(ROUTES.home)
+    } catch (error: any) {
+      handleErrorApi({
+        error,
+        setError: () => {}
+      })
+    }
+  }
   return (
     <>
       <Sidebar collapsible='icon'>
@@ -168,12 +195,12 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Dash Board</SidebarGroupLabel>
-            <RenderMenu menuData={data.navMain} />
+            <RenderMenu menuData={dataSideBar.navMain} />
           </SidebarGroup>
           <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
             <SidebarGroupLabel>Projects</SidebarGroupLabel>
             <SidebarMenu>
-              {data.projects.map((item) => (
+              {dataSideBar.projects.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
@@ -225,12 +252,26 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                     className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
                   >
                     <Avatar className='h-8 w-8 rounded-lg'>
-                      <AvatarImage src={user?.avatar} alt={user.name} />
-                      <AvatarFallback className='rounded-lg'>CN</AvatarFallback>
+                      <AvatarImage
+                        src={
+                          user?.avatar
+                            ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
+                            : undefined
+                        }
+                        alt={user?.full_name}
+                      />
+                      <AvatarFallback className='rounded-lg'>
+                        {user?.full_name
+                          ?.split(' ')
+                          .map((word: any) => word[0])
+                          .join('')
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className='grid flex-1 text-left text-sm leading-tight'>
-                      <span className='truncate font-semibold'>{user.name}</span>
-                      <span className='truncate text-xs'>{user.email}</span>
+                      <span className='truncate font-semibold'>{user?.full_name}</span>
+                      <span className='truncate text-xs'>{user?.email}</span>
                     </div>
                     <ChevronsUpDown className='ml-auto size-4' />
                   </SidebarMenuButton>
@@ -244,12 +285,26 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                   <DropdownMenuLabel className='p-0 font-normal'>
                     <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
                       <Avatar className='h-8 w-8 rounded-lg'>
-                        <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback className='rounded-lg'>CN</AvatarFallback>
+                        <AvatarImage
+                          src={
+                            user?.avatar
+                              ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
+                              : undefined
+                          }
+                          alt={user?.full_name}
+                        />
+                        <AvatarFallback className='rounded-lg'>
+                          {user?.full_name
+                            ?.split(' ')
+                            .map((word: any) => word[0])
+                            .join('')
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </AvatarFallback>
                       </Avatar>
                       <div className='grid flex-1 text-left text-sm leading-tight'>
-                        <span className='truncate font-semibold'>{user.name}</span>
-                        <span className='truncate text-xs'>{user.email}</span>
+                        <span className='truncate font-semibold'>{user?.full_name}</span>
+                        <span className='truncate text-xs'>{user?.email}</span>
                       </div>
                     </div>
                   </DropdownMenuLabel>
@@ -276,7 +331,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className='hover:cursor-pointer'>
                     <LogOut />
                     Log out
                   </DropdownMenuItem>

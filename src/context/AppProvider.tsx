@@ -1,4 +1,5 @@
 'use client'
+import RefreshTokenComponent from '@/components/refresh-token'
 import { decodeToken, getAccessTokenFromLocalStorage, removeTokensFromLocalStorage } from '@/lib/utils'
 import { RoleType } from '@/types/jwt.types'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -45,7 +46,7 @@ export default function AppProvider({ children }: { children: React.ReactNode })
     <AppContext.Provider value={{ role, setRole, isAuth }}>
       <QueryClientProvider client={queryClient}>
         {children}
-        {/* <RefreshTokenComponent /> */}
+        <RefreshTokenComponent />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </AppContext.Provider>

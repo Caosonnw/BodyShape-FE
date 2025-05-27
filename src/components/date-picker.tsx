@@ -6,9 +6,9 @@ import { Calendar as CalendarIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Calendar } from '@/components/ui/calendar'
 
 interface DatePickerProps {
   startYear?: number
@@ -77,7 +77,7 @@ export function DatePicker({
           {date ? format(date, 'PPP') : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-auto p-0'>
+      <PopoverContent className='w-auto p-0 !z-[9999]'>
         <div className='flex justify-between p-2'>
           <Select onValueChange={handleMonthChange} value={months[getMonth(date)]}>
             <SelectTrigger className='w-[110px]'>

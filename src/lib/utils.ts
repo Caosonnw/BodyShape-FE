@@ -1,4 +1,6 @@
+import { Role } from '@/constants/type'
 import { HttpError } from '@/lib/http'
+import authServ from '@/services/authServ'
 import { TokenPayload } from '@/types/jwt.types'
 import { clsx, type ClassValue } from 'clsx'
 import jwt from 'jsonwebtoken'
@@ -51,4 +53,32 @@ export const setRefreshTokenToLocalStorage = (value: string) => isBrowser && loc
 export const removeTokensFromLocalStorage = () => {
   isBrowser && localStorage.removeItem('accessToken')
   isBrowser && localStorage.removeItem('refreshToken')
+}
+
+export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuccess?: () => void }) => {
+  const accessToken = getAccessTokenFromLocalStorage()
+  const refreshToken = getRefreshTokenFromLocalStorage()
+
+  if (!accessToken || !refreshToken) return
+  const decodedAccessToken = decodeToken(accessToken)
+  const decodedRefreshToken = decodeToken(refreshToken)
+
+  const now = new Date().getTime() / 1000 - 1
+
+  if (decodedRefreshToken.exp <= now) {
+    removeTokensFromLocalStorage()
+    return param?.onError && param.onError()
+  }
+
+  if (decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
+    try {
+      // const role = decodedRefreshToken.role
+      const res = await authServ.refreshToken()
+      setAccessTokenToLocalStorage(res.payload.data.accessToken)
+      setRefreshTokenToLocalStorage(res.payload.data.refreshToken)
+      param?.onSuccess && param.onSuccess()
+    } catch (error) {
+      param?.onError && param.onError()
+    }
+  }
 }
