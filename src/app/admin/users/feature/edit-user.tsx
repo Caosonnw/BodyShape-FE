@@ -63,7 +63,6 @@ export default function EditUser({
   const full_name = form.watch('full_name')
   const previewAvatar = useMemo(() => {
     if (fileImage) {
-      console.log(fileImage)
       return URL.createObjectURL(fileImage)
     }
     return avatar
@@ -116,6 +115,10 @@ export default function EditUser({
 
         const uploadImageResult = await uploadMediaMutation.mutateAsync(formData)
         const imageUrl = uploadImageResult.payload.data
+        if (!imageUrl) {
+          showAlert('Failed to upload image', 'error')
+          return
+        }
         body = { ...body, avatar: imageUrl }
       }
       const result = await updateUserMutation.mutateAsync(body)
@@ -195,8 +198,10 @@ export default function EditUser({
                       <Avatar className='aspect-square w-[100px] h-[100px] rounded-md object-cover'>
                         <AvatarImage
                           src={
-                            previewAvatar
-                              ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${previewAvatar}`
+                            fileImage
+                              ? previewAvatar
+                              : avatar
+                              ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${avatar}`
                               : undefined
                           }
                         />

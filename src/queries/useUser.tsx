@@ -40,12 +40,46 @@ export const useCreateUserMutation = () => {
 export const useUpdateUserMutation = (user_id: number) => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ user_id, ...body }: UpdateUserBodyType & { user_id: number }) => userServ.updateUser(user_id, body),
+    mutationFn: ({
+      user_id,
+      role,
+      email,
+      full_name,
+      password,
+      date_of_birth,
+      phone_number,
+      ...rest
+    }: UpdateUserBodyType & {
+      user_id: number
+      role: 'OWNER' | 'ADMIN' | 'COACH' | 'CUSTOMER'
+      email: string
+      full_name: string
+      password: string
+      date_of_birth: string
+      phone_number: string
+    }) =>
+      userServ.updateUser(user_id, {
+        role,
+        email,
+        full_name,
+        password,
+        date_of_birth,
+        phone_number,
+        ...rest
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['users'],
         exact: true
       })
     }
+  })
+}
+
+export const useGetCoachCustomer = (user_id: number) => {
+  return useQuery({
+    queryKey: ['coach-customer', user_id],
+    queryFn: () => userServ.getCoachCustomer(user_id),
+    enabled: !!user_id
   })
 }

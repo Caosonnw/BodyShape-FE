@@ -5,8 +5,10 @@ import { UserSelect } from '@/components/calendar/components/header/user-select'
 import { IEvent } from '@/components/calendar/interfaces'
 import { TCalendarView } from '@/components/calendar/types'
 import { Button } from '@/components/ui/button'
+import { decodeToken } from '@/lib/utils'
 import { CalendarRange, Columns, Grid2x2, Grid3x3, List, Plus } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 interface IProps {
   view: TCalendarView
@@ -14,6 +16,20 @@ interface IProps {
 }
 
 export function CalendarHeader({ view, events }: IProps) {
+  const [userId, setUserId] = useState<number>()
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken') // hoặc key bạn lưu
+    if (!token) return
+
+    try {
+      const decoded = decodeToken(token)
+      // Giả sử trong payload token có trường userId hoặc user_id
+      setUserId(decoded.user_id || decoded.user_id)
+    } catch (error) {
+      console.error('Invalid token', error)
+    }
+  }, [])
   return (
     <div className='flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between'>
       <div className='flex items-center gap-3'>
@@ -85,7 +101,7 @@ export function CalendarHeader({ view, events }: IProps) {
             </Button>
           </div>
 
-          <UserSelect />
+          {userId !== undefined && <UserSelect userId={userId} />}
         </div>
 
         <AddEventDialog>

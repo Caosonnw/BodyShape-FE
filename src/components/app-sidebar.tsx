@@ -3,6 +3,7 @@
 import { ROUTES } from '@/common/path'
 import RenderMenu from '@/components/renderMenu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ import {
   SidebarMenuItem,
   SidebarRail
 } from '@/components/ui/sidebar'
+import { Role } from '@/constants/type'
 import { useAlert } from '@/context/AlertContext'
 import { useAppContext } from '@/context/AppProvider'
 import { handleErrorApi } from '@/lib/utils'
@@ -49,8 +51,10 @@ import {
   MessageSquare,
   MoreHorizontal,
   PieChart,
+  Settings,
   Sparkles,
   Trash2,
+  UserCog,
   UsersRound
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -64,7 +68,8 @@ const dataSideBar = {
     {
       title: 'Dash Board',
       url: ROUTES.admin,
-      icon: LayoutDashboard
+      icon: LayoutDashboard,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
     },
     {
       title: 'Models',
@@ -92,56 +97,73 @@ const dataSideBar = {
     {
       title: 'Users',
       url: ROUTES.adminRoutes.users,
-      icon: UsersRound
+      icon: UsersRound,
+      role: [Role.OWNER]
     },
     {
       title: 'Training schedule',
       url: ROUTES.adminRoutes.schedules,
-      icon: Calendar
+      icon: Calendar,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH]
     },
     {
       title: 'Packages',
       url: ROUTES.adminRoutes.packages,
-      icon: CreditCard
+      icon: CreditCard,
+      role: [Role.OWNER]
     },
     {
       title: 'Memberships',
       url: ROUTES.adminRoutes.memberships,
-      icon: IdCard
+      icon: IdCard,
+      role: [Role.OWNER]
     },
     {
       title: 'Chat',
       url: ROUTES.adminRoutes.chat,
-      icon: MessageSquare
+      icon: MessageSquare,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
     },
     {
       title: 'Checkins',
       url: ROUTES.adminRoutes.checkins,
-      icon: MapPinCheck
+      icon: MapPinCheck,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
     },
     {
       title: 'Equipments',
       url: ROUTES.adminRoutes.equipments,
-      icon: Dumbbell
+      icon: Dumbbell,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
     }
   ],
   projects: [
     {
       name: 'Design Engineering',
       url: '#',
-      icon: Frame
+      icon: Frame,
+      role: [Role.OWNER]
     },
     {
       name: 'Sales & Marketing',
       url: '#',
-      icon: PieChart
+      icon: PieChart,
+      role: [Role.OWNER, Role.ADMIN]
     },
     {
       name: 'Travel',
       url: '#',
-      icon: Map
+      icon: Map,
+      role: [Role.OWNER, Role.ADMIN]
     }
   ]
+}
+
+const roleColors: Record<string, string> = {
+  [Role.OWNER]: 'bg-red-500 text-white',
+  [Role.ADMIN]: 'bg-blue-500 text-white',
+  [Role.COACH]: 'bg-yellow-500 text-white',
+  [Role.CUSTOMER]: 'bg-green-500 text-white'
 }
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
@@ -149,7 +171,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { theme } = useTheme()
   const [accessToken, setAccessToken] = React.useState<string | null>(null)
-  const { setRole } = useAppContext()
+  const { role, setRole } = useAppContext()
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('accessToken')
@@ -174,6 +196,25 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       })
     }
   }
+
+  function filterMenuByRole(menu: any[], role: string | null): any[] {
+    if (!role) return []
+    return menu
+      .filter((item) => !item.role || item.role.includes(role))
+      .map((item) => {
+        if (item.items) {
+          return {
+            ...item,
+            items: filterMenuByRole(item.items, role)
+          }
+        }
+        return item
+      })
+  }
+
+  // Lọc menu theo role trước khi render:
+  const filteredNavMain = React.useMemo(() => filterMenuByRole(dataSideBar.navMain, role ?? null), [role])
+  const filteredProjects = React.useMemo(() => filterMenuByRole(dataSideBar.projects, role ?? null), [role])
   return (
     <>
       <Sidebar collapsible='icon'>
@@ -195,12 +236,12 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Dash Board</SidebarGroupLabel>
-            <RenderMenu menuData={dataSideBar.navMain} />
+            <RenderMenu menuData={filteredNavMain} />
           </SidebarGroup>
           <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
             <SidebarGroupLabel>Projects</SidebarGroupLabel>
             <SidebarMenu>
-              {dataSideBar.projects.map((item) => (
+              {filteredProjects.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
@@ -306,28 +347,20 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                         <span className='truncate font-semibold'>{user?.full_name}</span>
                         <span className='truncate text-xs'>{user?.email}</span>
                       </div>
+                      <div>
+                        <Badge className={roleColors[role ?? ''] || ''}>{role}</Badge>
+                      </div>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
-                      <Sparkles />
-                      Upgrade to Pro
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <BadgeCheck />
-                      Account
+                      <UserCog />
+                      Profile
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <CreditCard />
-                      Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Bell />
-                      Notifications
+                      <Settings />
+                      Setting
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />

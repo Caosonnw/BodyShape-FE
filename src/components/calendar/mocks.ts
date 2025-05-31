@@ -3,30 +3,30 @@
 import { IEvent, IUser } from '@/components/calendar/interfaces'
 import { TEventColor } from '@/components/calendar/types'
 
+const COLORS: TEventColor[] = ['blue', 'green', 'red', 'yellow', 'purple', 'orange', 'gray']
+
 export const USERS_MOCK: IUser[] = [
   {
-    id: 'dd503cf9-6c38-43cf-94cc-0d4032e2f77a',
-    name: 'Leonardo Ramos',
-    picturePath: null
+    user_id: 'dd503cf9-6c38-43cf-94cc-0d4032e2f77a',
+    full_name: 'Leonardo Ramos',
+    avatar: null
   },
   {
-    id: 'f3b035ac-49f7-4e92-a715-35680bf63175',
-    name: 'Michael Doe',
-    picturePath: null
+    user_id: 'f3b035ac-49f7-4e92-a715-35680bf63175',
+    full_name: 'Michael Doe',
+    avatar: null
   },
   {
-    id: '3e36ea6e-78f3-40dd-ab8c-a6c737c3c422',
-    name: 'Alice Johnson',
-    picturePath: null
+    user_id: '3e36ea6e-78f3-40dd-ab8c-a6c737c3c422',
+    full_name: 'Alice Johnson',
+    avatar: null
   },
   {
-    id: 'a7aff6bd-a50a-4d6a-ab57-76f76bb27cf5',
-    name: 'Robert Smith',
-    picturePath: null
+    user_id: 'a7aff6bd-a50a-4d6a-ab57-76f76bb27cf5',
+    full_name: 'Robert Smith',
+    avatar: null
   }
 ]
-
-const COLORS: TEventColor[] = ['blue', 'green', 'red', 'yellow', 'purple', 'orange', 'gray']
 
 const EVENTS = [
   "Doctor's appointment",

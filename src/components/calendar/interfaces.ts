@@ -1,9 +1,9 @@
 import { TEventColor } from '@/components/calendar/types'
 
 export interface IUser {
-  id: string
-  name: string
-  picturePath: string | null
+  user_id: string
+  full_name: string
+  avatar: string | null
 }
 
 export interface IEvent {

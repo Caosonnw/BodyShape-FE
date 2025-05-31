@@ -82,14 +82,14 @@ export function AddEventDialog({ children, startDate, startTime }: IProps) {
 
                       <SelectContent>
                         {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id} className='flex-1'>
+                          <SelectItem key={user.user_id} value={user.user_id} className='flex-1'>
                             <div className='flex items-center gap-2'>
-                              <Avatar key={user.id} className='size-6'>
-                                <AvatarImage src={user.picturePath ?? undefined} alt={user.name} />
-                                <AvatarFallback className='text-xxs'>{user.name[0]}</AvatarFallback>
+                              <Avatar key={user.user_id} className='size-6'>
+                                <AvatarImage src={user.avatar ?? undefined} alt={user.full_name} />
+                                <AvatarFallback className='text-xxs'>{user.full_name[0]}</AvatarFallback>
                               </Avatar>
 
-                              <p className='truncate'>{user.name}</p>
+                              <p className='truncate'>{user.full_name}</p>
                             </div>
                           </SelectItem>
                         ))}
