@@ -76,10 +76,9 @@ export const useUpdateUserMutation = (user_id: number) => {
   })
 }
 
-export const useGetCoachCustomer = (user_id: number) => {
+export const useGetCoachCustomers = () => {
   return useQuery({
-    queryKey: ['coach-customer', user_id],
-    queryFn: () => userServ.getCoachCustomer(user_id),
-    enabled: !!user_id
+    queryKey: ['coach-customers'],
+    queryFn: userServ.getCoachCustomer
   })
 }

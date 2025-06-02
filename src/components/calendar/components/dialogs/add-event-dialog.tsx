@@ -1,5 +1,7 @@
 'use client'
 
+import { useCalendar } from '@/components/calendar/contexts/calendar-context'
+import { eventSchema, TEventFormData } from '@/components/calendar/schemas'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,14 +19,11 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SingleDayPicker } from '@/components/ui/single-day-picker'
 import { Textarea } from '@/components/ui/textarea'
+import { TimeInput } from '@/components/ui/time-input'
 import { useDisclosure } from '@/hooks/use-disclosure'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-
-import { useCalendar } from '@/components/calendar/contexts/calendar-context'
-import { eventSchema, TEventFormData } from '@/components/calendar/schemas'
-import { TimeInput } from '@/components/ui/time-input'
 import type { TimeValue } from 'react-aria-components'
+import { useForm } from 'react-hook-form'
 
 interface IProps {
   children: React.ReactNode
@@ -40,6 +39,7 @@ export function AddEventDialog({ children, startDate, startTime }: IProps) {
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
+      user: '',
       title: '',
       description: '',
       startDate: typeof startDate !== 'undefined' ? startDate : undefined,
@@ -47,8 +47,9 @@ export function AddEventDialog({ children, startDate, startTime }: IProps) {
     }
   })
 
-  const onSubmit = (_values: TEventFormData) => {
+  const onSubmit = (values: TEventFormData) => {
     // TO DO: Create use-add-event hook
+    console.log('Submit values:', values)
     onClose()
     form.reset()
   }
@@ -61,8 +62,8 @@ export function AddEventDialog({ children, startDate, startTime }: IProps) {
         <DialogHeader>
           <DialogTitle>Add New Event</DialogTitle>
           <DialogDescription>
-            This is just and example of how to use the form. In a real application, you would call the API to create the
-            event
+            Add a gym training session for the selected user. Choose the time, date, and provide any session notes if
+            needed.
           </DialogDescription>
         </DialogHeader>
 
@@ -73,22 +74,51 @@ export function AddEventDialog({ children, startDate, startTime }: IProps) {
               name='user'
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel>Responsible</FormLabel>
+                  <FormLabel>Customer</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger data-invalid={fieldState.invalid}>
-                        <SelectValue placeholder='Select an option' />
+                        <SelectValue placeholder='Select an option'>
+                          {field.value ? (
+                            <div className='flex items-center gap-2'>
+                              <Avatar className='size-6'>
+                                <AvatarImage
+                                  src={
+                                    users.find((u) => String(u.user_id) === field.value)?.avatar
+                                      ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${
+                                          users.find((u) => String(u.user_id) === field.value)?.avatar
+                                        }`
+                                      : undefined
+                                  }
+                                  alt={users.find((u) => String(u.user_id) === field.value)?.full_name}
+                                />
+                                <AvatarFallback className='text-xxs'>
+                                  {users.find((u) => String(u.user_id) === field.value)?.full_name[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <p className='truncate'>
+                                {users.find((u) => String(u.user_id) === field.value)?.full_name}
+                              </p>
+                            </div>
+                          ) : null}
+                        </SelectValue>
                       </SelectTrigger>
 
                       <SelectContent>
                         {users.map((user) => (
-                          <SelectItem key={user.user_id} value={user.user_id} className='flex-1'>
+                          <SelectItem key={user.user_id} value={String(user.user_id)}>
                             <div className='flex items-center gap-2'>
-                              <Avatar key={user.user_id} className='size-6'>
-                                <AvatarImage src={user.avatar ?? undefined} alt={user.full_name} />
+                              <Avatar className='size-6'>
+                                <AvatarImage
+                                  src={
+                                    user.avatar
+                                      ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
+                                      : undefined
+                                  }
+                                  alt={user.full_name}
+                                />
                                 <AvatarFallback className='text-xxs'>{user.full_name[0]}</AvatarFallback>
                               </Avatar>
-
                               <p className='truncate'>{user.full_name}</p>
                             </div>
                           </SelectItem>

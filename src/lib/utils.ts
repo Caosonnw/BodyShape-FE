@@ -82,3 +82,17 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
     }
   }
 }
+
+// Hàm lấy user_id từ token
+export const getUserIdFromToken = (): number | null => {
+  const accessToken = localStorage.getItem('accessToken')
+  if (!accessToken) return null
+
+  try {
+    const decoded: any = decodeToken(accessToken)
+    return decoded.user_id || null // Giả sử token chứa trường `user_id`
+  } catch (error) {
+    console.error('Failed to decode token', error)
+    return null
+  }
+}

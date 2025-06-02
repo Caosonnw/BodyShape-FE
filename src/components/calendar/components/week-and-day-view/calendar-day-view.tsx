@@ -184,7 +184,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
             <ScrollArea className='h-[422px] px-4' type='always'>
               <div className='space-y-6 pb-4'>
                 {currentEvents.map((event) => {
-                  const user = users.find((user) => user.id === event.user.id)
+                  const user = users.find((user) => user.user_id === event.user.user_id)
 
                   return (
                     <div key={event.id} className='space-y-1.5'>
@@ -193,7 +193,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                       {user && (
                         <div className='flex items-center gap-1.5 text-muted-foreground'>
                           <User className='size-3.5' />
-                          <span className='text-sm'>{user.name}</span>
+                          <span className='text-sm'>{user.full_name}</span>
                         </div>
                       )}
 

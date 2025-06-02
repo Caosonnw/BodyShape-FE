@@ -8,9 +8,23 @@ export const getEvents = async () => {
 }
 
 export const getUsers = async () => {
-  // TO DO: implement this
-  // Increase the delay to better see the loading state
-  // await new Promise(resolve => setTimeout(resolve, 800));
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    throw new Error('Access token is required')
+  }
 
-  return USERS_MOCK
+  const res = await fetch('http://localhost:8080/user/get-coach-customers', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(`Failed to fetch users: ${error.message}`)
+  }
+
+  const data = await res.json()
+  return data.data
 }

@@ -2,16 +2,9 @@ import { useCalendar } from '@/components/calendar/contexts/calendar-context'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { AvatarGroup } from '@/components/ui/avatar-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useGetCoachCustomer } from '@/queries/useUser'
-import { useState } from 'react'
 
-export function UserSelect({ userId }: { userId: number }) {
-  // Tạo state local để quản lý selectedUserId
-  const [selectedUserId, setSelectedUserId] = useState<string | 'all'>('all')
-  const { data } = useGetCoachCustomer(userId)
-  const users = data?.payload?.data ?? []
-
-  // const { users, selectedUserId, setSelectedUserId } = useCalendar()
+export function UserSelect() {
+  const { users, selectedUserId, setSelectedUserId } = useCalendar()
 
   return (
     <Select value={selectedUserId} onValueChange={setSelectedUserId}>
