@@ -19,7 +19,7 @@ export function YearViewDayCell({ day, date, events }: IProps) {
 
   const handleClick = () => {
     setSelectedDate(date)
-    push('/day-view')
+    push('/dashboard/day-view')
   }
 
   return (
@@ -42,7 +42,7 @@ export function YearViewDayCell({ day, date, events }: IProps) {
           {eventCount <= maxIndicators ? (
             events.map((event) => (
               <div
-                key={event.id}
+                key={event.schedule_id}
                 className={cn(
                   'size-1.5 rounded-full',
                   event.color === 'blue' && 'bg-blue-600',

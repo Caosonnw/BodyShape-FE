@@ -632,7 +632,7 @@ body {
   position: relative;
   z-index: 9;
   height: 100px;
-  padding-left: 30px;
+  /* padding-left: 30px; */
 }
 
 .site-header .extra-nav .extra-cell {
@@ -1478,6 +1478,36 @@ body {
     line-height: 30px;
     padding: 8px;
   }
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  color: #000;
+  width: 140px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 10px 5px;
+  z-index: 100;
+}
+
+.user-dropdown li a {
+  display: block;
+  padding: 8px 20px;
+  color: #212529;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.user-dropdown li a:hover {
+  color: var(--primary);
+}
+
+.site-header .is-fixed .main-bar .user-dropdown-menu .extra-cell {
+  background-color: var(--primary);
+  color: #fff;
 }
 
 /* Banner  */

@@ -6,16 +6,15 @@ export const ROUTES = {
     order: '/guest/orders'
   },
   profile: '/profile',
-  admin: '/admin',
-  adminRoutes: {
-    dashboard: '/admin/dashboard',
-    users: '/admin/users',
-    schedules: '/admin/month-view',
-    packages: '/admin/packages',
-    memberships: '/admin/memberships',
-    chat: '/admin/chat',
-    checkins: '/admin/checkins',
-    equipments: '/admin/equipments',
-    orders: '/admin/orders'
+  dashboard: '/dashboard',
+  dashboardRoutes: {
+    users: '/dashboard/users',
+    schedules: '/dashboard/month-view',
+    packages: '/dashboard/packages',
+    memberships: '/dashboard/memberships',
+    chat: '/dashboard/chat',
+    checkins: '/dashboard/checkins',
+    equipments: '/dashboard/equipments',
+    orders: '/dashboard/orders'
   }
 }

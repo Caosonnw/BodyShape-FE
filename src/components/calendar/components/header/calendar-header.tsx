@@ -31,7 +31,7 @@ export function CalendarHeader({ view, events }: IProps) {
               variant={view === 'day' ? 'default' : 'outline'}
               className='rounded-r-none [&_svg]:size-5'
             >
-              <Link href='/admin/day-view'>
+              <Link href='/dashboard/day-view'>
                 <List strokeWidth={1.8} />
               </Link>
             </Button>
@@ -43,7 +43,7 @@ export function CalendarHeader({ view, events }: IProps) {
               variant={view === 'week' ? 'default' : 'outline'}
               className='-ml-px rounded-none [&_svg]:size-5'
             >
-              <Link href='/admin/week-view'>
+              <Link href='/dashboard/week-view'>
                 <Columns strokeWidth={1.8} />
               </Link>
             </Button>
@@ -55,7 +55,7 @@ export function CalendarHeader({ view, events }: IProps) {
               variant={view === 'month' ? 'default' : 'outline'}
               className='-ml-px rounded-none [&_svg]:size-5'
             >
-              <Link href='/admin/month-view'>
+              <Link href='/dashboard/month-view'>
                 <Grid2x2 strokeWidth={1.8} />
               </Link>
             </Button>
@@ -67,7 +67,7 @@ export function CalendarHeader({ view, events }: IProps) {
               variant={view === 'year' ? 'default' : 'outline'}
               className='-ml-px rounded-none [&_svg]:size-5'
             >
-              <Link href='/admin/year-view'>
+              <Link href='/dashboard/year-view'>
                 <Grid3x3 strokeWidth={1.8} />
               </Link>
             </Button>
@@ -79,7 +79,7 @@ export function CalendarHeader({ view, events }: IProps) {
               variant={view === 'agenda' ? 'default' : 'outline'}
               className='-ml-px rounded-l-none [&_svg]:size-5'
             >
-              <Link href='/admin/agenda-view'>
+              <Link href='/dashboard/agenda-view'>
                 <CalendarRange strokeWidth={1.8} />
               </Link>
             </Button>
@@ -89,7 +89,7 @@ export function CalendarHeader({ view, events }: IProps) {
         </div>
 
         <AddEventDialog>
-          <Button className='w-full sm:w-auto'>
+          <Button className='w-full sm:w-auto hover:cursor-pointer'>
             <Plus />
             Add Event
           </Button>

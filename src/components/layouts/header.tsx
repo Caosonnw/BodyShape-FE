@@ -4,6 +4,7 @@ import { ChevronDown, Search, User } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { MenuListArray } from '@/common/MenuList'
+import { useAppContext } from '@/context/AppProvider'
 
 const Header = () => {
   const [headerFix, setHeaderFix] = useState(false)
@@ -16,7 +17,11 @@ const Header = () => {
   const [hasAccessToken, setHasAccessToken] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
 
+  const [userMenuMobileOpen, setUserMenuMobileOpen] = useState(false)
+
   const pathname = usePathname()
+
+  const { role } = useAppContext()
 
   useEffect(() => {
     const handleScroll = () => setHeaderFix(window.scrollY > 50)
@@ -105,20 +110,30 @@ const Header = () => {
             </button>
 
             {/* User icon với dropdown menu */}
-            <div className='extra-nav' onMouseEnter={handleUserMouseEnter} onMouseLeave={handleUserMouseLeave}>
-              <div className='extra-cell cursor-pointer flex items-center'>
+            <div
+              className='user-dropdown-menu extra-nav pl-[25px] relative'
+              onMouseEnter={handleUserMouseEnter}
+              onMouseLeave={handleUserMouseLeave}
+            >
+              <div className='extra-cell cursor-pointer flex items-center bg-[#fff] w-[42px] h-[42px] px-3 py-3 hover:bg-[#f7244f] hover:text-white transition-colors duration-300'>
                 <User />
-                <ChevronDown width={14} strokeWidth={3} className='ml-1' />
               </div>
               {userMenuOpen && (
-                <ul className='sub-menu animate__animated animate__fadeInUp animate__faster text-white'>
+                <ul className='user-dropdown animate__animated animate__fadeInUp animate__faster text-white text-left'>
                   {hasAccessToken ? (
                     <>
+                      {['OWNER', 'ADMIN', 'COACH'].includes(role ?? '') && (
+                        <li>
+                          <Link href='/dashboard'>Dashboard</Link>
+                        </li>
+                      )}
+                      {role === 'CUSTOMER' && (
+                        <li>
+                          <Link href='/profile'>Profile</Link>
+                        </li>
+                      )}
                       <li>
-                        <Link href='/profile'>Profile</Link>
-                      </li>
-                      <li>
-                        <Link href='/help-center'>Help Center</Link>
+                        <Link href='/logout'>Logout</Link>
                       </li>
                     </>
                   ) : (
@@ -129,9 +144,6 @@ const Header = () => {
                       <li>
                         <Link href='/register'>Register</Link>
                       </li>
-                      <li>
-                        <Link href='/help-center'>Help Center</Link>
-                      </li>
                     </>
                   )}
                 </ul>
@@ -140,13 +152,6 @@ const Header = () => {
 
             <div className='extra-nav'>
               <div className='extra-cell'>
-                {/* <button
-                  id='quik-search-btn'
-                  type='button'
-                  className='header-search-btn !flex !justify-center !items-center'
-                >
-                  <Search width={18} strokeWidth={3} />
-                </button> */}
                 <Link href='/appointment' className='btn btn-skew appointment-btn'>
                   <span>Appointment</span>
                 </Link>
@@ -163,6 +168,55 @@ const Header = () => {
                 </Link>
               </div>
               <ul className='nav navbar-nav navbar navbar-left'>
+                {/* User menu mobile nên nằm ở đây */}
+                <li className={`sm:hidden block nav-item ${userMenuMobileOpen ? 'active' : ''}`}>
+                  <a
+                    href='#'
+                    className='nav-link !flex items-center'
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setUserMenuMobileOpen(!userMenuMobileOpen)
+                    }}
+                  >
+                    <User className='mr-2' />
+                    <ChevronDown
+                      width={17}
+                      strokeWidth={3}
+                      className={`transition-transform duration-300 ${userMenuMobileOpen ? 'rotate-180' : ''}`}
+                    />
+                  </a>
+                  {userMenuMobileOpen && (
+                    <ul className='sub-menu pl-4 mt-2'>
+                      {hasAccessToken ? (
+                        <>
+                          {['OWNER', 'ADMIN', 'COACH'].includes(role ?? '') && (
+                            <li>
+                              <Link href='/dashboard'>Dashboard</Link>
+                            </li>
+                          )}
+                          {role === 'CUSTOMER' && (
+                            <li>
+                              <Link href='/profile'>Profile</Link>
+                            </li>
+                          )}
+                          <li>
+                            <Link href='/logout'>Logout</Link>
+                          </li>
+                        </>
+                      ) : (
+                        <>
+                          <li>
+                            <Link href='/login'>Login</Link>
+                          </li>
+                          <li>
+                            <Link href='/register'>Register</Link>
+                          </li>
+                        </>
+                      )}
+                    </ul>
+                  )}
+                </li>
+
                 {MenuListArray.map((item, index) => {
                   const isActive = item.title === activeMenu
                   const hasSubmenu = item.content && item.content.length > 0

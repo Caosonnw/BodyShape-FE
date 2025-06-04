@@ -21,8 +21,8 @@ export function DroppableDayCell({ cell, children }: DroppableDayCellProps) {
       drop: (item: { event: IEvent }) => {
         const droppedEvent = item.event
 
-        const eventStartDate = parseISO(droppedEvent.startDate)
-        const eventEndDate = parseISO(droppedEvent.endDate)
+        const eventStartDate = parseISO(droppedEvent.start_date)
+        const eventEndDate = parseISO(droppedEvent.end_date)
 
         const eventDurationMs = differenceInMilliseconds(eventEndDate, eventStartDate)
 
@@ -37,8 +37,8 @@ export function DroppableDayCell({ cell, children }: DroppableDayCellProps) {
 
         updateEvent({
           ...droppedEvent,
-          startDate: newStartDate.toISOString(),
-          endDate: newEndDate.toISOString()
+          start_date: newStartDate.toISOString(),
+          end_date: newEndDate.toISOString()
         })
 
         return { moved: true }

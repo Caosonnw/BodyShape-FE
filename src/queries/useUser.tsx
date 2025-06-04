@@ -40,33 +40,28 @@ export const useCreateUserMutation = () => {
 export const useUpdateUserMutation = (user_id: number) => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({
-      user_id,
-      role,
-      email,
-      full_name,
-      password,
-      date_of_birth,
-      phone_number,
-      ...rest
-    }: UpdateUserBodyType & {
-      user_id: number
-      role: 'OWNER' | 'ADMIN' | 'COACH' | 'CUSTOMER'
-      email: string
-      full_name: string
-      password: string
-      date_of_birth: string
-      phone_number: string
-    }) =>
-      userServ.updateUser(user_id, {
-        role,
-        email,
+    mutationFn: ({ user_id, ...body }: { user_id: number } & UpdateUserBodyType) => {
+      const { full_name, email, password, date_of_birth, phone_number, role, ...optionalFields } = body
+      if (
+        typeof full_name !== 'string' ||
+        typeof email !== 'string' ||
+        typeof password !== 'string' ||
+        typeof date_of_birth !== 'string' ||
+        typeof phone_number !== 'string' ||
+        typeof role !== 'string'
+      ) {
+        return Promise.reject(new Error('Missing required user fields'))
+      }
+      return userServ.updateUser(user_id, {
         full_name,
+        email,
         password,
         date_of_birth,
         phone_number,
-        ...rest
-      }),
+        role,
+        ...optionalFields
+      })
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['users'],

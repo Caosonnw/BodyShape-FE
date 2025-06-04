@@ -67,7 +67,7 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
               <div className='grid grid-cols-7 divide-x'>
                 {weekDays.map((day, dayIndex) => {
                   const dayEvents = singleDayEvents.filter(
-                    (event) => isSameDay(parseISO(event.startDate), day) || isSameDay(parseISO(event.endDate), day)
+                    (event) => isSameDay(parseISO(event.start_date), day) || isSameDay(parseISO(event.end_date), day)
                   )
                   const groupedEvents = groupEvents(dayEvents)
 
@@ -127,12 +127,12 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
                               otherGroup.some((otherEvent) =>
                                 areIntervalsOverlapping(
                                   {
-                                    start: parseISO(event.startDate),
-                                    end: parseISO(event.endDate)
+                                    start: parseISO(event.start_date),
+                                    end: parseISO(event.end_date)
                                   },
                                   {
-                                    start: parseISO(otherEvent.startDate),
-                                    end: parseISO(otherEvent.endDate)
+                                    start: parseISO(otherEvent.start_date),
+                                    end: parseISO(otherEvent.end_date)
                                   }
                                 )
                               )
@@ -141,7 +141,7 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
                           if (!hasOverlap) style = { ...style, width: '100%', left: '0%' }
 
                           return (
-                            <div key={event.id} className='absolute p-1' style={style}>
+                            <div key={event.schedule_id} className='absolute p-1' style={style}>
                               <EventBlock event={event} />
                             </div>
                           )

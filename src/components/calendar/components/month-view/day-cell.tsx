@@ -40,7 +40,7 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
         >
           {[0, 1, 2].map((position) => {
             const event = cellEvents.find((e) => e.position === position)
-            const eventKey = event ? `event-${event.id}-${position}` : `empty-${position}`
+            const eventKey = event ? `event-${event.schedule_id}-${position}` : `empty-${position}`
 
             return (
               <div key={eventKey} className='lg:flex-1'>

@@ -2,7 +2,7 @@ import { DayCell } from '@/components/calendar/components/month-view/day-cell'
 import { useCalendar } from '@/components/calendar/contexts/calendar-context'
 import { calculateMonthEventPositions, getCalendarCells } from '@/components/calendar/helpers'
 import { IEvent } from '@/components/calendar/interfaces'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 interface IProps {
   singleDayEvents: IEvent[]

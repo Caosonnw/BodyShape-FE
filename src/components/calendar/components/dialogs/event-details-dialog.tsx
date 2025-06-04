@@ -13,8 +13,10 @@ interface IProps {
 }
 
 export function EventDetailsDialog({ event, children }: IProps) {
-  const startDate = parseISO(event.startDate)
-  const endDate = parseISO(event.endDate)
+  const startDate = parseISO(event.start_date)
+  const endDate = parseISO(event.end_date)
+
+  // console.log(event)
 
   return (
     <>

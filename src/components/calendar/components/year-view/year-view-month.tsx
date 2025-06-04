@@ -58,7 +58,7 @@ export function YearViewMonth({ month, events }: IProps) {
 
             const date = new Date(month.getFullYear(), month.getMonth(), day)
             const dayEvents = events.filter(
-              (event) => isSameDay(parseISO(event.startDate), date) || isSameDay(parseISO(event.endDate), date)
+              (event) => isSameDay(parseISO(event.start_date), date) || isSameDay(parseISO(event.end_date), date)
             )
 
             return <YearViewDayCell key={`day-${day}`} day={day} date={date} events={dayEvents} />

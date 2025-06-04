@@ -82,7 +82,7 @@ export function getEventsCount(events: IEvent[], date: Date, view: TCalendarView
     month: isSameMonth
   }
 
-  return events.filter((event) => compareFns[view](new Date(event.startDate), date)).length
+  return events.filter((event) => compareFns[view](new Date(event.start_date), date)).length
 }
 
 // ================ Week and day view helper functions ================ //
@@ -91,22 +91,22 @@ export function getCurrentEvents(events: IEvent[]) {
   const now = new Date()
   return (
     events.filter((event) =>
-      isWithinInterval(now, { start: parseISO(event.startDate), end: parseISO(event.endDate) })
+      isWithinInterval(now, { start: parseISO(event.start_date), end: parseISO(event.end_date) })
     ) || null
   )
 }
 
 export function groupEvents(dayEvents: IEvent[]) {
-  const sortedEvents = dayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime())
+  const sortedEvents = dayEvents.sort((a, b) => parseISO(a.start_date).getTime() - parseISO(b.start_date).getTime())
   const groups: IEvent[][] = []
 
   for (const event of sortedEvents) {
-    const eventStart = parseISO(event.startDate)
+    const eventStart = parseISO(event.start_date)
 
     let placed = false
     for (const group of groups) {
       const lastEventInGroup = group[group.length - 1]
-      const lastEventEnd = parseISO(lastEventInGroup.endDate)
+      const lastEventEnd = parseISO(lastEventInGroup.end_date)
 
       if (eventStart >= lastEventEnd) {
         group.push(event)
@@ -128,7 +128,7 @@ export function getEventBlockStyle(
   groupSize: number,
   visibleHoursRange?: { from: number; to: number }
 ) {
-  const startDate = parseISO(event.startDate)
+  const startDate = parseISO(event.start_date)
   const dayStart = new Date(day.setHours(0, 0, 0, 0))
   const eventStart = startDate < dayStart ? dayStart : startDate
   const startMinutes = differenceInMinutes(eventStart, dayStart)
@@ -161,8 +161,8 @@ export function getVisibleHours(visibleHours: TVisibleHours, singleDayEvents: IE
   let latestEventHour = visibleHours.to
 
   singleDayEvents.forEach((event) => {
-    const startHour = parseISO(event.startDate).getHours()
-    const endTime = parseISO(event.endDate)
+    const startHour = parseISO(event.start_date).getHours()
+    const endTime = parseISO(event.end_date)
     const endHour = endTime.getHours() + (endTime.getMinutes() > 0 ? 1 : 0)
     if (startHour < earliestEventHour) earliestEventHour = startHour
     if (endHour > latestEventHour) latestEventHour = endHour
@@ -223,16 +223,16 @@ export function calculateMonthEventPositions(multiDayEvents: IEvent[], singleDay
 
   const sortedEvents = [
     ...multiDayEvents.sort((a, b) => {
-      const aDuration = differenceInDays(parseISO(a.endDate), parseISO(a.startDate))
-      const bDuration = differenceInDays(parseISO(b.endDate), parseISO(b.startDate))
-      return bDuration - aDuration || parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime()
+      const aDuration = differenceInDays(parseISO(a.end_date), parseISO(a.start_date))
+      const bDuration = differenceInDays(parseISO(b.end_date), parseISO(b.start_date))
+      return bDuration - aDuration || parseISO(a.start_date).getTime() - parseISO(b.start_date).getTime()
     }),
-    ...singleDayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime())
+    ...singleDayEvents.sort((a, b) => parseISO(a.start_date).getTime() - parseISO(b.start_date).getTime())
   ]
 
   sortedEvents.forEach((event) => {
-    const eventStart = parseISO(event.startDate)
-    const eventEnd = parseISO(event.endDate)
+    const eventStart = parseISO(event.start_date)
+    const eventEnd = parseISO(event.end_date)
     const eventDays = eachDayOfInterval({
       start: eventStart < monthStart ? monthStart : eventStart,
       end: eventEnd > monthEnd ? monthEnd : eventEnd
@@ -257,7 +257,7 @@ export function calculateMonthEventPositions(multiDayEvents: IEvent[], singleDay
         const dayKey = startOfDay(day).toISOString()
         occupiedPositions[dayKey][position] = true
       })
-      eventPositions[event.id] = position
+      eventPositions[event.schedule_id] = position
     }
   })
 
@@ -266,16 +266,16 @@ export function calculateMonthEventPositions(multiDayEvents: IEvent[], singleDay
 
 export function getMonthCellEvents(date: Date, events: IEvent[], eventPositions: Record<string, number>) {
   const eventsForDate = events.filter((event) => {
-    const eventStart = parseISO(event.startDate)
-    const eventEnd = parseISO(event.endDate)
+    const eventStart = parseISO(event.start_date)
+    const eventEnd = parseISO(event.end_date)
     return (date >= eventStart && date <= eventEnd) || isSameDay(date, eventStart) || isSameDay(date, eventEnd)
   })
 
   return eventsForDate
     .map((event) => ({
       ...event,
-      position: eventPositions[event.id] ?? -1,
-      isMultiDay: event.startDate !== event.endDate
+      position: eventPositions[event.schedule_id] ?? -1,
+      isMultiDay: event.start_date !== event.end_date
     }))
     .sort((a, b) => {
       if (a.isMultiDay && !b.isMultiDay) return -1

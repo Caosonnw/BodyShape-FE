@@ -51,8 +51,8 @@ interface IProps {
 export function AgendaEventCard({ event, eventCurrentDay, eventTotalDays }: IProps) {
   const { badgeVariant } = useCalendar()
 
-  const startDate = parseISO(event.startDate)
-  const endDate = parseISO(event.endDate)
+  const startDate = parseISO(event.start_date)
+  const endDate = parseISO(event.end_date)
 
   const color = (badgeVariant === 'dot' ? `${event.color}-dot` : event.color) as VariantProps<
     typeof agendaEventCardVariants

@@ -28,6 +28,8 @@ import { useUpdateEvent } from '@/components/calendar/hooks/use-update-event'
 import { IEvent } from '@/components/calendar/interfaces'
 import { eventSchema, TEventFormData } from '@/components/calendar/schemas'
 import type { TimeValue } from 'react-aria-components'
+import { useUpdateScheduleMutation } from '@/queries/useSchedule'
+import { useAlert } from '@/context/AlertContext'
 
 interface IProps {
   children: React.ReactNode
@@ -36,44 +38,40 @@ interface IProps {
 
 export function EditEventDialog({ children, event }: IProps) {
   const { isOpen, onClose, onToggle } = useDisclosure()
-
   const { users } = useCalendar()
-
   const { updateEvent } = useUpdateEvent()
 
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      user: event.user.user_id,
+      user: String(event.user.user_id),
       title: event.title,
       description: event.description,
-      startDate: parseISO(event.startDate),
-      startTime: { hour: parseISO(event.startDate).getHours(), minute: parseISO(event.startDate).getMinutes() },
-      endDate: parseISO(event.endDate),
-      endTime: { hour: parseISO(event.endDate).getHours(), minute: parseISO(event.endDate).getMinutes() },
+      startDate: parseISO(event.start_date),
+      startTime: { hour: parseISO(event.start_date).getHours(), minute: parseISO(event.start_date).getMinutes() },
+      endDate: parseISO(event.end_date),
+      endTime: { hour: parseISO(event.end_date).getHours(), minute: parseISO(event.end_date).getMinutes() },
       color: event.color
     }
   })
 
   const onSubmit = (values: TEventFormData) => {
-    const user = users.find((user) => user.user_id === values.user)
-
-    if (!user) throw new Error('User not found')
-
     const startDateTime = new Date(values.startDate)
     startDateTime.setHours(values.startTime.hour, values.startTime.minute)
 
     const endDateTime = new Date(values.endDate)
     endDateTime.setHours(values.endTime.hour, values.endTime.minute)
 
+    const selectedUser = users.find((u) => String(u.user_id) === values.user)
+
     updateEvent({
       ...event,
-      user,
+      user: selectedUser!,
       title: values.title,
       color: values.color,
       description: values.description,
-      startDate: startDateTime.toISOString(),
-      endDate: endDateTime.toISOString()
+      start_date: startDateTime.toISOString(),
+      end_date: endDateTime.toISOString()
     })
 
     onClose()
@@ -108,10 +106,17 @@ export function EditEventDialog({ children, event }: IProps) {
 
                       <SelectContent>
                         {users.map((user) => (
-                          <SelectItem key={user.user_id} value={user.user_id} className='flex-1'>
+                          <SelectItem key={user.user_id} value={String(user.user_id)} className='flex-1'>
                             <div className='flex items-center gap-2'>
                               <Avatar key={user.user_id} className='size-6'>
-                                <AvatarImage src={user.avatar ?? undefined} alt={user.full_name} />
+                                <AvatarImage
+                                  src={
+                                    user.avatar
+                                      ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
+                                      : undefined
+                                  }
+                                  alt={user.full_name}
+                                />
                                 <AvatarFallback className='text-xxs'>{user.full_name[0]}</AvatarFallback>
                               </Avatar>
 

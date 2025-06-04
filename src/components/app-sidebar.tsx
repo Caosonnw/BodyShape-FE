@@ -33,8 +33,6 @@ import { handleErrorApi } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { useAccountMe } from '@/queries/useUser'
 import {
-  BadgeCheck,
-  Bell,
   Bot,
   Calendar,
   ChevronsUpDown,
@@ -52,7 +50,6 @@ import {
   MoreHorizontal,
   PieChart,
   Settings,
-  Sparkles,
   Trash2,
   UserCog,
   UsersRound
@@ -67,8 +64,50 @@ const dataSideBar = {
   navMain: [
     {
       title: 'Dash Board',
-      url: ROUTES.admin,
+      url: ROUTES.dashboard,
       icon: LayoutDashboard,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+    },
+    {
+      title: 'Users',
+      url: ROUTES.dashboardRoutes.users,
+      icon: UsersRound,
+      role: [Role.OWNER]
+    },
+    {
+      title: 'Training schedule',
+      url: ROUTES.dashboardRoutes.schedules,
+      icon: Calendar,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH]
+    },
+    {
+      title: 'Packages',
+      url: ROUTES.dashboardRoutes.packages,
+      icon: CreditCard,
+      role: [Role.OWNER]
+    },
+    {
+      title: 'Memberships',
+      url: ROUTES.dashboardRoutes.memberships,
+      icon: IdCard,
+      role: [Role.OWNER]
+    },
+    {
+      title: 'Chat',
+      url: ROUTES.dashboardRoutes.chat,
+      icon: MessageSquare,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+    },
+    {
+      title: 'Checkins',
+      url: ROUTES.dashboardRoutes.checkins,
+      icon: MapPinCheck,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+    },
+    {
+      title: 'Equipments',
+      url: ROUTES.dashboardRoutes.equipments,
+      icon: Dumbbell,
       role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
     },
     {
@@ -93,48 +132,6 @@ const dataSideBar = {
           url: '#'
         }
       ]
-    },
-    {
-      title: 'Users',
-      url: ROUTES.adminRoutes.users,
-      icon: UsersRound,
-      role: [Role.OWNER]
-    },
-    {
-      title: 'Training schedule',
-      url: ROUTES.adminRoutes.schedules,
-      icon: Calendar,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH]
-    },
-    {
-      title: 'Packages',
-      url: ROUTES.adminRoutes.packages,
-      icon: CreditCard,
-      role: [Role.OWNER]
-    },
-    {
-      title: 'Memberships',
-      url: ROUTES.adminRoutes.memberships,
-      icon: IdCard,
-      role: [Role.OWNER]
-    },
-    {
-      title: 'Chat',
-      url: ROUTES.adminRoutes.chat,
-      icon: MessageSquare,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
-    },
-    {
-      title: 'Checkins',
-      url: ROUTES.adminRoutes.checkins,
-      icon: MapPinCheck,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
-    },
-    {
-      title: 'Equipments',
-      url: ROUTES.adminRoutes.equipments,
-      icon: Dumbbell,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
     }
   ],
   projects: [

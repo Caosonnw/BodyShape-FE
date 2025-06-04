@@ -24,7 +24,7 @@ const userServ = {
     return http.put<AccountResType>(`${prefix}/update-user/${userId}`, data)
   },
   getCoachCustomer: () => {
-    return http.get<ApiResponseType>(`${prefix}/get-coach-customers`)
+    return http.get<ApiResponseType>(`/coach-customers/get-coach-customers`)
   }
 }
 

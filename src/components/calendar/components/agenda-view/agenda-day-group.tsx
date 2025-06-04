@@ -9,7 +9,7 @@ interface IProps {
 }
 
 export function AgendaDayGroup({ date, events, multiDayEvents }: IProps) {
-  const sortedEvents = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+  const sortedEvents = [...events].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
 
   return (
     <div className='space-y-4'>
@@ -20,15 +20,15 @@ export function AgendaDayGroup({ date, events, multiDayEvents }: IProps) {
       <div className='space-y-2'>
         {multiDayEvents.length > 0 &&
           multiDayEvents.map((event) => {
-            const eventStart = startOfDay(parseISO(event.startDate))
-            const eventEnd = startOfDay(parseISO(event.endDate))
+            const eventStart = startOfDay(parseISO(event.start_date))
+            const eventEnd = startOfDay(parseISO(event.end_date))
             const currentDate = startOfDay(date)
 
             const eventTotalDays = differenceInDays(eventEnd, eventStart) + 1
             const eventCurrentDay = differenceInDays(currentDate, eventStart) + 1
             return (
               <AgendaEventCard
-                key={event.id}
+                key={event.schedule_id}
                 event={event}
                 eventCurrentDay={eventCurrentDay}
                 eventTotalDays={eventTotalDays}
@@ -36,7 +36,8 @@ export function AgendaDayGroup({ date, events, multiDayEvents }: IProps) {
             )
           })}
 
-        {sortedEvents.length > 0 && sortedEvents.map((event) => <AgendaEventCard key={event.id} event={event} />)}
+        {sortedEvents.length > 0 &&
+          sortedEvents.map((event) => <AgendaEventCard key={event.schedule_id} event={event} />)}
       </div>
     </div>
   )

@@ -1,5 +1,7 @@
 'use client'
 
+import AddUser from '@/app/dashboard/users/feature/add-user'
+import EditUser from '@/app/dashboard/users/feature/edit-user'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import {
@@ -12,6 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -23,11 +27,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Role } from '@/constants/type'
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
-import { useGetAllPackages } from '@/queries/usePackage'
 import { useGetAllUsers } from '@/queries/useUser'
-import { PackageListResType, PackageType } from '@/schema/package.schema'
 import { AccountListResType, AccountType } from '@/schema/user.schema'
 import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
 import {
@@ -42,25 +45,33 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { format } from 'date-fns'
 import { PlusIcon } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
-type PackageItem = PackageListResType['data'][0]
+type AccountItem = AccountListResType['data'][0]
 
-const PackageTableContext = createContext<{
-  setPackageIdEdit: (value: number) => void
-  packageIdEdit: number | undefined
-  packageDelete: PackageItem | null
-  setPackageDelete: (value: PackageItem | null) => void
+const roleColors: Record<string, string> = {
+  [Role.OWNER]: 'bg-red-500 text-white',
+  [Role.ADMIN]: 'bg-blue-500 text-white',
+  [Role.COACH]: 'bg-yellow-500 text-white',
+  [Role.CUSTOMER]: 'bg-green-500 text-white'
+}
+
+const AccountTableContext = createContext<{
+  setUserIdEdit: (value: number) => void
+  userIdEdit: number | undefined
+  userDelete: AccountItem | null
+  setUserDelete: (value: AccountItem | null) => void
 }>({
-  setPackageIdEdit: (value: number | undefined) => {},
-  packageIdEdit: undefined,
-  packageDelete: null,
-  setPackageDelete: (value: PackageItem | null) => {}
+  setUserIdEdit: (value: number | undefined) => {},
+  userIdEdit: undefined,
+  userDelete: null,
+  setUserDelete: (value: AccountItem | null) => {}
 })
 
-export const columns: ColumnDef<PackageType>[] = [
+export const columns: ColumnDef<AccountType>[] = [
   {
     id: 'stt',
     header: ({ column }) => (
@@ -79,37 +90,78 @@ export const columns: ColumnDef<PackageType>[] = [
     accessorFn: (row, index) => index // Cho phép sắp xếp theo index
   },
   {
-    accessorKey: 'package_name',
+    accessorKey: 'avatar',
+    header: 'Avatar',
+    cell: ({ row }) => {
+      const avatarUrl = row.getValue('avatar') as string
+      const user = row.original as AccountItem
+      return (
+        <Avatar className='aspect-square w-[40px] h-[40px] rounded-md object-cover'>
+          <AvatarImage
+            src={avatarUrl ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${avatarUrl}` : undefined}
+          />
+          <AvatarFallback className='rounded-none'>
+            {user?.full_name
+              ?.split(' ')
+              .map((word: any) => word[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      )
+    }
+  },
+  {
+    accessorKey: 'full_name',
     header: 'Name',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('package_name')}</div>
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('full_name')}</div>
   },
   {
-    accessorKey: 'description',
-    header: 'Description',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('description')}</div>
+    accessorKey: 'email',
+    header: ({ column }) => {
+      return (
+        <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Email
+          <CaretSortIcon className='ml-2 h-4 w-4' />
+        </Button>
+      )
+    }
   },
   {
-    accessorKey: 'price',
-    header: 'Price',
-    cell: ({ row }) => <div>{row.getValue('price')}</div>
+    accessorKey: 'date_of_birth',
+    header: 'Date of Birth',
+    cell: ({ row }) => {
+      const dateOfBirth = row.getValue('date_of_birth') as string
+      return <div>{dateOfBirth ? format(new Date(dateOfBirth), 'dd/MM/yyyy') : ''}</div>
+    }
   },
   {
-    accessorKey: 'duration_days',
-    header: 'Duration Days',
-    cell: ({ row }) => <div>{row.getValue('duration_days')}</div>
+    accessorKey: 'phone_number',
+    header: 'Phone Number',
+    cell: ({ row }) => <div>{row.getValue('phone_number')}</div>
+  },
+  {
+    accessorKey: 'role',
+    header: 'Role',
+    cell: ({ row }) => {
+      const role = row.getValue('role') as keyof typeof Role
+
+      return <Badge className={`px-2 py-1 rounded-md ${roleColors[role] || 'bg-gray-300'}`}>{role}</Badge>
+    }
   },
   {
     id: 'actions',
     enableHiding: false,
     header: 'Actions',
     cell: function Actions({ row }) {
-      const { setPackageIdEdit, setPackageDelete } = useContext(PackageTableContext)
+      const { setUserIdEdit, setUserDelete } = useContext(AccountTableContext)
       const openEditUser = () => {
-        setPackageIdEdit(row.original.package_id)
+        setUserIdEdit(row.original.user_id)
       }
 
       const openDeleteUser = () => {
-        setPackageDelete(row.original)
+        setUserDelete(row.original)
       }
       return (
         <DropdownMenu modal={false}>
@@ -135,8 +187,8 @@ function AlertDialogDeleteAccount({
   userDelete,
   setUserDelete
 }: {
-  userDelete: PackageItem | null
-  setUserDelete: (value: PackageItem | null) => void
+  userDelete: AccountItem | null
+  setUserDelete: (value: AccountItem | null) => void
 }) {
   const { showAlert } = useAlert()
 
@@ -166,11 +218,10 @@ function AlertDialogDeleteAccount({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Package?</AlertDialogTitle>
+          <AlertDialogTitle>Delete User?</AlertDialogTitle>
           <AlertDialogDescription>
-            Package{' '}
-            <span className='bg-foreground text-primary-foreground rounded px-1'>{userDelete?.package_name}</span> will
-            be erased permanently.
+            Account <span className='bg-foreground text-primary-foreground rounded px-1'>{userDelete?.full_name}</span>{' '}
+            will be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -184,15 +235,15 @@ function AlertDialogDeleteAccount({
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
-export default function PackageTable() {
+export default function UserTable() {
   const searchParam = useSearchParams()
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
   const pageIndex = page - 1
   const params = Object.fromEntries(searchParam.entries())
-  const [packageIdEdit, setPackageIdEdit] = useState<number | undefined>()
-  const [packageDelete, setPackageDelete] = useState<PackageItem | null>(null)
-  const packageListQuery = useGetAllPackages()
-  const data: any[] = packageListQuery.data?.payload.data ?? []
+  const [userIdEdit, setUserIdEdit] = useState<number | undefined>()
+  const [userDelete, setUserDelete] = useState<AccountItem | null>(null)
+  const accountListQuery = useGetAllUsers()
+  const data: any[] = accountListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -232,27 +283,23 @@ export default function PackageTable() {
   }, [table, pageIndex])
 
   return (
-    <PackageTableContext.Provider value={{ packageIdEdit, setPackageIdEdit, packageDelete, setPackageDelete }}>
+    <AccountTableContext.Provider value={{ userIdEdit, setUserIdEdit, userDelete, setUserDelete }}>
       <div className='flex items-center justify-between pt-6 px-6'>
-        <h1 className='text-2xl font-bold text-gray-900'>Packages list</h1>
-        <div className='flex items-center space-x-3'>
-          <Button variant={'default'} className='px-4 py-2 hover:cursor-pointer'>
-            Add Package
-            <PlusIcon />
-          </Button>
-        </div>
+        <h1 className='text-3xl font-bold'>Users list</h1>
       </div>
       <div className='w-full px-6'>
-        {/* <EditUser id={packageIdEdit} setId={setPackageIdEdit} onSubmitSuccess={() => {}} /> */}
-        <AlertDialogDeleteAccount userDelete={packageDelete} setUserDelete={setPackageDelete} />
+        <EditUser id={userIdEdit} setId={setUserIdEdit} onSubmitSuccess={() => {}} />
+        <AlertDialogDeleteAccount userDelete={userDelete} setUserDelete={setUserDelete} />
         <div className='flex items-center py-4'>
           <Input
-            placeholder='Filter Package Name...'
-            value={(table.getColumn('package_name')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('package_name')?.setFilterValue(event.target.value)}
+            placeholder='Filter emails...'
+            value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('email')?.setFilterValue(event.target.value)}
             className='max-w-sm'
           />
-          <div className='ml-auto flex items-center gap-2'>{/* <AddPackage /> */}</div>
+          <div className='ml-auto flex items-center gap-2'>
+            <AddUser />
+          </div>
         </div>
         <div className='rounded-md border'>
           <Table>
@@ -297,11 +344,11 @@ export default function PackageTable() {
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname={ROUTES.adminRoutes.packages}
+              pathname={ROUTES.dashboardRoutes.users}
             />
           </div>
         </div>
       </div>
-    </PackageTableContext.Provider>
+    </AccountTableContext.Provider>
   )
 }

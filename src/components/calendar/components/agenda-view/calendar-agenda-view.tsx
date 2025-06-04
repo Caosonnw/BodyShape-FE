@@ -18,7 +18,7 @@ export function CalendarAgendaView({ singleDayEvents, multiDayEvents }: IProps) 
     const allDates = new Map<string, { date: Date; events: IEvent[]; multiDayEvents: IEvent[] }>()
 
     singleDayEvents.forEach((event) => {
-      const eventDate = parseISO(event.startDate)
+      const eventDate = parseISO(event.start_date)
       if (!isSameMonth(eventDate, selectedDate)) return
 
       const dateKey = format(eventDate, 'yyyy-MM-dd')
@@ -35,8 +35,8 @@ export function CalendarAgendaView({ singleDayEvents, multiDayEvents }: IProps) 
     })
 
     multiDayEvents.forEach((event) => {
-      const eventStart = parseISO(event.startDate)
-      const eventEnd = parseISO(event.endDate)
+      const eventStart = parseISO(event.start_date)
+      const eventEnd = parseISO(event.end_date)
 
       let currentDate = startOfDay(eventStart)
       const lastDate = endOfDay(eventEnd)

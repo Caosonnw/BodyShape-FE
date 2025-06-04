@@ -8,12 +8,12 @@ export function UserSelect() {
 
   return (
     <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-      <SelectTrigger className='flex-1 md:w-48'>
+      <SelectTrigger className='flex-1 md:w-48 hover:cursor-pointer'>
         <SelectValue />
       </SelectTrigger>
 
       <SelectContent align='end'>
-        <SelectItem value='all'>
+        <SelectItem value='all' className='hover:cursor-pointer'>
           <div className='flex items-center gap-1'>
             <AvatarGroup max={2}>
               {users.map((user: any) => (
@@ -34,7 +34,7 @@ export function UserSelect() {
         </SelectItem>
 
         {users.map((user: any) => (
-          <SelectItem key={user.user_id} value={user.user_id} className='flex-1'>
+          <SelectItem key={user.user_id} value={user.user_id} className='flex-1 hover:cursor-pointer'>
             <div className='flex items-center gap-2'>
               <Avatar key={user.user_id} className='size-6'>
                 <AvatarImage

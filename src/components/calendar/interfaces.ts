@@ -7,9 +7,9 @@ export interface IUser {
 }
 
 export interface IEvent {
-  id: number
-  startDate: string
-  endDate: string
+  schedule_id: number
+  start_date: string
+  end_date: string
   title: string
   color: TEventColor
   description: string

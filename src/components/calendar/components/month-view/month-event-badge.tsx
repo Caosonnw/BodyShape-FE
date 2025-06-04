@@ -66,8 +66,8 @@ export function MonthEventBadge({
 }: IProps) {
   const { badgeVariant } = useCalendar()
 
-  const itemStart = startOfDay(parseISO(event.startDate))
-  const itemEnd = endOfDay(parseISO(event.endDate))
+  const itemStart = startOfDay(parseISO(event.start_date))
+  const itemEnd = endOfDay(parseISO(event.end_date))
 
   if (cellDate < itemStart || cellDate > itemEnd) return null
 
@@ -125,7 +125,7 @@ export function MonthEventBadge({
             )}
           </div>
 
-          {renderBadgeText && <span>{format(new Date(event.startDate), 'h:mm a')}</span>}
+          {renderBadgeText && <span>{format(new Date(event.start_date), 'h:mm a')}</span>}
         </div>
       </EventDetailsDialog>
     </DraggableEvent>

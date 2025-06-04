@@ -16,8 +16,8 @@ export function WeekViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IPro
   const processedEvents = useMemo(() => {
     return multiDayEvents
       .map((event) => {
-        const start = parseISO(event.startDate)
-        const end = parseISO(event.endDate)
+        const start = parseISO(event.start_date)
+        const end = parseISO(event.end_date)
         const adjustedStart = isBefore(start, weekStart) ? weekStart : start
         const adjustedEnd = isAfter(end, weekEnd) ? weekEnd : end
         const startIndex = differenceInDays(adjustedStart, weekStart)
@@ -59,8 +59,8 @@ export function WeekViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IPro
 
   const hasEventsInWeek = useMemo(() => {
     return multiDayEvents.some((event) => {
-      const start = parseISO(event.startDate)
-      const end = parseISO(event.endDate)
+      const start = parseISO(event.start_date)
+      const end = parseISO(event.end_date)
 
       return (
         // Event starts within the week
@@ -104,7 +104,7 @@ export function WeekViewMultiDayEventsRow({ selectedDate, multiDayEvents }: IPro
 
               return (
                 <MonthEventBadge
-                  key={`${event.id}-${dayIndex}`}
+                  key={`${event.schedule_id}-${dayIndex}`}
                   event={event}
                   cellDate={startOfDay(day)}
                   position={position}

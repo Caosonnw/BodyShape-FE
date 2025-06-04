@@ -20,7 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SingleDayPicker } from '@/components/ui/single-day-picker'
 import { Textarea } from '@/components/ui/textarea'
 import { TimeInput } from '@/components/ui/time-input'
+import { useAlert } from '@/context/AlertContext'
 import { useDisclosure } from '@/hooks/use-disclosure'
+import { useCreateScheduleMutation } from '@/queries/useSchedule'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { TimeValue } from 'react-aria-components'
 import { useForm } from 'react-hook-form'
@@ -33,8 +35,9 @@ interface IProps {
 
 export function AddEventDialog({ children, startDate, startTime }: IProps) {
   const { users } = useCalendar()
-
   const { isOpen, onClose, onToggle } = useDisclosure()
+  const { showAlert } = useAlert()
+  const createSchedules = useCreateScheduleMutation()
 
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
@@ -43,13 +46,41 @@ export function AddEventDialog({ children, startDate, startTime }: IProps) {
       title: '',
       description: '',
       startDate: typeof startDate !== 'undefined' ? startDate : undefined,
-      startTime: typeof startTime !== 'undefined' ? startTime : undefined
+      endDate: typeof startDate !== 'undefined' ? startDate : undefined,
+      endTime: typeof startTime !== 'undefined' ? startTime : undefined,
+      startTime: typeof startTime !== 'undefined' ? startTime : undefined,
+      color: undefined
     }
   })
 
-  const onSubmit = (values: TEventFormData) => {
-    // TO DO: Create use-add-event hook
-    console.log('Submit values:', values)
+  const onSubmit = async (values: TEventFormData) => {
+    const mergeDateTimeLocalString = (date?: Date, time?: { hour: number; minute: number }): string | undefined => {
+      if (!date) return undefined
+      const d = new Date(date)
+      if (time) d.setHours(time.hour, time.minute, 0, 0)
+      else d.setHours(0, 0, 0, 0)
+
+      const pad = (num: number) => num.toString().padStart(2, '0')
+
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
+        d.getMinutes()
+      )}:00`
+    }
+
+    const payload = {
+      customer_id: Number(values.user),
+      title: values.title,
+      description: values.description,
+      start_date: mergeDateTimeLocalString(values.startDate, values.startTime),
+      end_date: mergeDateTimeLocalString(values.endDate, values.endTime),
+      color: values.color
+    }
+    try {
+      const result = await createSchedules.mutateAsync(payload)
+      showAlert(result.payload?.message, 'success')
+    } catch (error) {
+      showAlert('Failed to add event', 'error')
+    }
     onClose()
     form.reset()
   }

@@ -1,4 +1,4 @@
-import UserTable from '@/app/admin/users/feature/user-table'
+import UserTable from '@/app/dashboard/users/feature/user-table'
 import React, { Suspense } from 'react'
 
 export default function User() {

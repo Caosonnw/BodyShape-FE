@@ -1,4 +1,4 @@
-import PackageTable from '@/app/admin/packages/feature/package-table'
+import PackageTable from '@/app/dashboard/packages/feature/package-table'
 import React, { Suspense } from 'react'
 
 export default function Packages() {

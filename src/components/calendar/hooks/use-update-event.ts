@@ -1,22 +1,31 @@
-import { useCalendar } from '@/components/calendar/contexts/calendar-context'
 import { IEvent } from '@/components/calendar/interfaces'
+import { useAlert } from '@/context/AlertContext'
+import { useUpdateScheduleMutation } from '@/queries/useSchedule'
 
 export function useUpdateEvent() {
-  const { setLocalEvents } = useCalendar()
+  const { showAlert } = useAlert()
+  const updateSchedules = useUpdateScheduleMutation()
 
-  // This is just and example, in a real scenario
-  // you would call an API to update the event
   const updateEvent = (event: IEvent) => {
     const newEvent: IEvent = event
 
-    newEvent.startDate = new Date(event.startDate).toISOString()
-    newEvent.endDate = new Date(event.endDate).toISOString()
+    newEvent.start_date = new Date(event.start_date).toISOString()
+    newEvent.end_date = new Date(event.end_date).toISOString()
 
-    setLocalEvents((prev) => {
-      const index = prev.findIndex((e) => e.id === event.id)
-      if (index === -1) return prev
-      return [...prev.slice(0, index), newEvent, ...prev.slice(index + 1)]
-    })
+    try {
+      updateSchedules.mutate({
+        schedule_id: event.schedule_id,
+        body: {
+          ...newEvent,
+          start_date: newEvent.start_date,
+          end_date: newEvent.end_date
+        }
+      })
+
+      showAlert('Event updated successfully', 'success')
+    } catch (error) {
+      showAlert('Error updating event', 'error')
+    }
   }
 
   return { updateEvent }

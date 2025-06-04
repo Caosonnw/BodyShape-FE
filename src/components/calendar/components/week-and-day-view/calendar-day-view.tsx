@@ -31,7 +31,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
   const currentEvents = getCurrentEvents(singleDayEvents)
 
   const dayEvents = singleDayEvents.filter((event) => {
-    const eventDate = parseISO(event.startDate)
+    const eventDate = parseISO(event.start_date)
     return (
       eventDate.getDate() === selectedDate.getDate() &&
       eventDate.getMonth() === selectedDate.getMonth() &&
@@ -127,12 +127,12 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                         otherGroup.some((otherEvent) =>
                           areIntervalsOverlapping(
                             {
-                              start: parseISO(event.startDate),
-                              end: parseISO(event.endDate)
+                              start: parseISO(event.start_date),
+                              end: parseISO(event.end_date)
                             },
                             {
-                              start: parseISO(otherEvent.startDate),
-                              end: parseISO(otherEvent.endDate)
+                              start: parseISO(otherEvent.start_date),
+                              end: parseISO(otherEvent.end_date)
                             }
                           )
                         )
@@ -141,7 +141,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                     if (!hasOverlap) style = { ...style, width: '100%', left: '0%' }
 
                     return (
-                      <div key={event.id} className='absolute p-1' style={style}>
+                      <div key={event.schedule_id} className='absolute p-1' style={style}>
                         <EventBlock event={event} />
                       </div>
                     )
@@ -187,7 +187,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                   const user = users.find((user) => user.user_id === event.user.user_id)
 
                   return (
-                    <div key={event.id} className='space-y-1.5'>
+                    <div key={event.schedule_id} className='space-y-1.5'>
                       <p className='line-clamp-2 text-sm font-semibold'>{event.title}</p>
 
                       {user && (
@@ -205,7 +205,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
                       <div className='flex items-center gap-1.5 text-muted-foreground'>
                         <Clock className='size-3.5' />
                         <span className='text-sm'>
-                          {format(parseISO(event.startDate), 'h:mm a')} - {format(parseISO(event.endDate), 'h:mm a')}
+                          {format(parseISO(event.start_date), 'h:mm a')} - {format(parseISO(event.end_date), 'h:mm a')}
                         </span>
                       </div>
                     </div>

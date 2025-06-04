@@ -1,6 +1,6 @@
 import LoginForm from '@/app/(public)/(auth)/login/login-form'
 import PageTitle from '@/components/layouts/page-title'
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 
 export default function Login() {
   return (

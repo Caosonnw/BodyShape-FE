@@ -51,8 +51,8 @@ interface IProps
 export function EventBlock({ event, className }: IProps) {
   const { badgeVariant } = useCalendar()
 
-  const start = parseISO(event.startDate)
-  const end = parseISO(event.endDate)
+  const start = parseISO(event.start_date)
+  const end = parseISO(event.end_date)
   const durationInMinutes = differenceInMinutes(end, start)
   const heightInPixels = (durationInMinutes / 60) * 96 - 8
 
