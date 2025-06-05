@@ -1,5 +1,7 @@
 'use client'
 
+import AddPackage from '@/app/dashboard/packages/feature/add-package'
+import EditPackage from '@/app/dashboard/packages/feature/edit-package'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import {
@@ -25,10 +27,8 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
-import { useGetAllPackages } from '@/queries/usePackage'
-import { useGetAllUsers } from '@/queries/useUser'
+import { useDeletePackageMutation, useGetAllPackages } from '@/queries/usePackage'
 import { PackageListResType, PackageType } from '@/schema/package.schema'
-import { AccountListResType, AccountType } from '@/schema/user.schema'
 import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
 import {
   ColumnDef,
@@ -42,7 +42,6 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { PlusIcon } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
@@ -65,7 +64,7 @@ export const columns: ColumnDef<PackageType>[] = [
     id: 'stt',
     header: ({ column }) => (
       <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        STT
+        No.
         <CaretSortIcon className='ml-2 h-4 w-4' />
       </Button>
     ),
@@ -91,7 +90,16 @@ export const columns: ColumnDef<PackageType>[] = [
   {
     accessorKey: 'price',
     header: 'Price',
-    cell: ({ row }) => <div>{row.getValue('price')}</div>
+    cell: ({ row }) => {
+      const price = row.getValue('price')
+      return (
+        <div>
+          {typeof price === 'number'
+            ? price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+            : String(price ?? '')}
+        </div>
+      )
+    }
   },
   {
     accessorKey: 'duration_days',
@@ -131,22 +139,22 @@ export const columns: ColumnDef<PackageType>[] = [
   }
 ]
 
-function AlertDialogDeleteAccount({
-  userDelete,
-  setUserDelete
+function AlertDialogDeletePackage({
+  packageDelete,
+  setPackageDelete
 }: {
-  userDelete: PackageItem | null
-  setUserDelete: (value: PackageItem | null) => void
+  packageDelete: PackageItem | null
+  setPackageDelete: (value: PackageItem | null) => void
 }) {
   const { showAlert } = useAlert()
 
-  // const { mutateAsync } = useDeleteAccountMutation()
-  const deleteAccount = async () => {
-    if (userDelete) {
+  const { mutateAsync } = useDeletePackageMutation()
+  const deletePackage = async () => {
+    if (packageDelete) {
       try {
-        // const result = await mutateAsync(userDelete.id)
-        setUserDelete(null)
-        // showAlert(result.payload.message, 'success')
+        const result = await mutateAsync(packageDelete.package_id)
+        setPackageDelete(null)
+        showAlert(result.payload.message, 'success')
       } catch (error) {
         handleErrorApi({
           error,
@@ -157,10 +165,10 @@ function AlertDialogDeleteAccount({
   }
   return (
     <AlertDialog
-      open={Boolean(userDelete)}
+      open={Boolean(packageDelete)}
       onOpenChange={(value) => {
         if (!value) {
-          setUserDelete(null)
+          setPackageDelete(null)
         }
       }}
     >
@@ -169,13 +177,13 @@ function AlertDialogDeleteAccount({
           <AlertDialogTitle>Delete Package?</AlertDialogTitle>
           <AlertDialogDescription>
             Package{' '}
-            <span className='bg-foreground text-primary-foreground rounded px-1'>{userDelete?.package_name}</span> will
-            be erased permanently.
+            <span className='bg-foreground text-primary-foreground rounded px-1'>{packageDelete?.package_name}</span>{' '}
+            will be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={deleteAccount}>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={deletePackage}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -235,16 +243,10 @@ export default function PackageTable() {
     <PackageTableContext.Provider value={{ packageIdEdit, setPackageIdEdit, packageDelete, setPackageDelete }}>
       <div className='flex items-center justify-between pt-6 px-6'>
         <h1 className='text-3xl font-bold text-gray-900'>Packages list</h1>
-        <div className='flex items-center space-x-3'>
-          <Button variant={'default'} className='px-4 py-2 hover:cursor-pointer'>
-            Add Package
-            <PlusIcon />
-          </Button>
-        </div>
       </div>
       <div className='w-full px-6'>
-        {/* <EditUser id={packageIdEdit} setId={setPackageIdEdit} onSubmitSuccess={() => {}} /> */}
-        <AlertDialogDeleteAccount userDelete={packageDelete} setUserDelete={setPackageDelete} />
+        <EditPackage packageId={packageIdEdit} setId={setPackageIdEdit} onSubmitSuccess={() => {}} />
+        <AlertDialogDeletePackage packageDelete={packageDelete} setPackageDelete={setPackageDelete} />
         <div className='flex items-center py-4'>
           <Input
             placeholder='Filter Package Name...'
@@ -252,7 +254,9 @@ export default function PackageTable() {
             onChange={(event) => table.getColumn('package_name')?.setFilterValue(event.target.value)}
             className='max-w-sm'
           />
-          <div className='ml-auto flex items-center gap-2'>{/* <AddPackage /> */}</div>
+          <div className='ml-auto flex items-center gap-2'>
+            <AddPackage />
+          </div>
         </div>
         <div className='rounded-md border'>
           <Table>

@@ -23,6 +23,9 @@ const userServ = {
   updateUser: (userId: number, data: CreateUserBodyType) => {
     return http.put<AccountResType>(`${prefix}/update-user/${userId}`, data)
   },
+  deleteUser: (userId: number) => {
+    return http.delete<ApiResponseType>(`${prefix}/delete-user/${userId}`, null)
+  },
   getCoachCustomer: () => {
     return http.get<ApiResponseType>(`/coach-customers/get-coach-customers`)
   }

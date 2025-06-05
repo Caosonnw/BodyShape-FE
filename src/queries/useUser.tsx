@@ -71,6 +71,18 @@ export const useUpdateUserMutation = (user_id: number) => {
   })
 }
 
+export const useDeleteUserMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: userServ.deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['users']
+      })
+    }
+  })
+}
+
 export const useGetCoachCustomers = () => {
   return useQuery({
     queryKey: ['coach-customers'],

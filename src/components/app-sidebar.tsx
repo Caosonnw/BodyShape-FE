@@ -78,7 +78,7 @@ const dataSideBar = {
       title: 'Training schedule',
       url: ROUTES.dashboardRoutes.schedules,
       icon: Calendar,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH]
+      role: [Role.ADMIN, Role.COACH]
     },
     {
       title: 'Packages',

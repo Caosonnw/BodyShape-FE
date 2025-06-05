@@ -23,4 +23,30 @@ export const PackageRes = z
     message: z.string()
   })
   .strict()
+  
 export type PackageResType = z.infer<typeof PackageRes>
+
+export const CreatePackageSchema = z
+  .object({
+    package_name: z
+      .string({ required_error: 'Package name is required' })
+      .min(1, { message: 'Package name cannot be empty' }),
+    description: z.string().optional(),
+    price: z.number({ required_error: 'Price is required' }).nonnegative({ message: 'Price cannot be negative' }),
+    duration_days: z
+      .number({ required_error: 'Duration (days) is required' })
+      .int({ message: 'Duration must be an integer' })
+      .positive({ message: 'Duration must be greater than 0' })
+  })
+  .strict()
+
+export type CreatePackageType = z.infer<typeof CreatePackageSchema>
+
+export const UpdatePackageSchema = CreatePackageSchema
+
+export type UpdatePackageType = z.infer<typeof UpdatePackageSchema>
+
+export const DeletePackageSchema = z.object({
+  package_id: z.number().int().positive()
+})
+export type DeletePackageType = z.infer<typeof DeletePackageSchema>

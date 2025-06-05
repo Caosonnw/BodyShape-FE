@@ -12,7 +12,14 @@ export const TokenType = {
   RefreshToken: 'RefreshToken'
 } as const
 
-export const StatusProduct = {
-  Available: 'Available',
-  OutOfStock: 'Out of Stock'
+export const StatusMemberships = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  EXPIRED: 'EXPIRED'
 }
+
+export const StatusMembershipsValues = [
+  StatusMemberships.ACTIVE,
+  StatusMemberships.INACTIVE,
+  StatusMemberships.EXPIRED
+] as const
