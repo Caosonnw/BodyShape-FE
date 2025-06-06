@@ -1,7 +1,7 @@
 'use client'
 
-import AddMembership from '@/app/dashboard/memberships/feature/add-membership'
-import EditMembership from '@/app/dashboard/memberships/feature/edit-membership'
+import AddEquipment from '@/app/dashboard/equipments/feature/add-equipments'
+import EditEquipment from '@/app/dashboard/equipments/feature/edit-equipments'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import {
@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,12 +27,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { StatusMemberships } from '@/constants/type'
+import { StatusEquipments } from '@/constants/type'
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
-import { useGetAllMemberships } from '@/queries/useMembership'
+import { useDeleteEquipmentMutation, useGetAllEquipments } from '@/queries/useEquipment'
 import { useDeletePackageMutation } from '@/queries/usePackage'
-import { MembershipListResType, MembershipType } from '@/schema/membership.schema'
+import { EquipmentListResType, EquipmentType } from '@/schema/equipment.schema'
 import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
 import {
   ColumnDef,
@@ -51,27 +50,27 @@ import { format, parseISO } from 'date-fns'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
-const membershipsStatusColors: Record<string, string> = {
-  [StatusMemberships.ACTIVE]: 'bg-green-500 text-white',
-  [StatusMemberships.INACTIVE]: 'bg-yellow-500 text-white',
-  [StatusMemberships.EXPIRED]: 'bg-red-500 text-white'
+type EquipmentItem = EquipmentListResType['data'][0]
+
+const statusEquipmentolors: Record<string, string> = {
+  [StatusEquipments.ACTIVE]: 'bg-green-500 text-white',
+  [StatusEquipments.MAINTENANCE]: 'bg-yellow-500 text-white',
+  [StatusEquipments.BROKEN]: 'bg-red-500 text-white'
 }
 
-type MembershipsItem = MembershipListResType['data'][0]
-
-const MembershipTableContext = createContext<{
-  setMembershipIdEdit: (value: number) => void
-  membershipIdEdit: number | undefined
-  membershipDelete: MembershipsItem | null
-  setMembershipDelete: (value: MembershipsItem | null) => void
+const EquipmentTableContext = createContext<{
+  setEquipmentIdEdit: (value: number) => void
+  equipmentIdEdit: number | undefined
+  equipmentDelete: EquipmentItem | null
+  setEquipmentDelete: (value: EquipmentItem | null) => void
 }>({
-  setMembershipIdEdit: (value: number | undefined) => {},
-  membershipIdEdit: undefined,
-  membershipDelete: null,
-  setMembershipDelete: (value: MembershipsItem | null) => {}
+  setEquipmentIdEdit: (value: number | undefined) => {},
+  equipmentIdEdit: undefined,
+  equipmentDelete: null,
+  setEquipmentDelete: (value: EquipmentItem | null) => {}
 })
 
-export const columns: ColumnDef<MembershipType>[] = [
+export const columns: ColumnDef<EquipmentType>[] = [
   {
     id: 'stt',
     header: ({ column }) => (
@@ -90,102 +89,48 @@ export const columns: ColumnDef<MembershipType>[] = [
     accessorFn: (row, index) => index // Cho phép sắp xếp theo index
   },
   {
-    accessorKey: 'customer_id',
-    header: 'Customer',
+    accessorKey: 'equipment_name',
+    header: 'Name',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('equipment_name')}</div>
+  },
+  {
+    accessorKey: 'description',
+    header: 'Description',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('description')}</div>
+  },
+  {
+    accessorKey: 'location',
+    header: 'Location',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('location')}</div>
+  },
+  {
+    accessorKey: 'last_maintenance_date',
+    header: 'Last Maintenance Date',
     cell: ({ row }) => {
-      const [isDialogOpen, setIsDialogOpen] = useState(false)
-      const userDetails = row.original.customers?.users
-
-      const handleShowUserDetails = () => setIsDialogOpen(true)
-      const handleCloseDialog = () => setIsDialogOpen(false)
-
-      return (
-        <>
-          <div className='flex items-center space-x-2'>
-            <Button onClick={handleShowUserDetails}>Show Details</Button>
-            <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>User Details</DialogTitle>
-                </DialogHeader>
-                <div>
-                  <p>Name: {userDetails.full_name}</p>
-                  <p>Email: {userDetails.email}</p>
-                  <p>Phone: {userDetails.phone_number}</p>
-                  <p>
-                    Birthday:{' '}
-                    {userDetails.date_of_birth ? new Date(userDetails.date_of_birth).toLocaleDateString() : ''}
-                  </p>
-                </div>
-                <DialogFooter>
-                  <Button onClick={handleCloseDialog}>Close</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </>
-      )
+      const value = row.getValue('last_maintenance_date')
+      if (!value) return <div className='text-muted-foreground italic'>N/A</div>
+      try {
+        const last_maintenance_date = parseISO(value as string)
+        const formattedLastMaintenanceDate = format(last_maintenance_date, 'dd/MM/yyyy HH:mm:ss')
+        return <div>{formattedLastMaintenanceDate}</div>
+      } catch {
+        return <div className='text-muted-foreground italic'>Invalid date</div>
+      }
     }
   },
   {
-    accessorKey: 'package_id',
-    header: 'Package',
+    accessorKey: 'created_at',
+    header: 'Created At',
     cell: ({ row }) => {
-      const [isPackageDialogOpen, setIsPackageDialogOpen] = useState(false)
-      const packageDetails = row.original.packages
-
-      const handleShowPackageDetails = () => setIsPackageDialogOpen(true)
-      const handleClosePackageDialog = () => setIsPackageDialogOpen(false)
-
-      const startDate = new Date(row.getValue('start_date'))
-      const endDate = new Date(row.getValue('end_date'))
-
-      return (
-        <>
-          <div className='flex items-center space-x-2'>
-            <Button onClick={handleShowPackageDetails}>Show Details</Button>
-            <Dialog open={isPackageDialogOpen} onOpenChange={handleClosePackageDialog}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Package Details</DialogTitle>
-                </DialogHeader>
-                <div>
-                  <p>Name: {packageDetails.package_name}</p>
-                  <p>Description: {packageDetails.description}</p>
-                  <p>Price: {packageDetails.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                  <p>Duration: {packageDetails.duration_days} days </p>
-                  <span>
-                    ({startDate.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} -{' '}
-                    {endDate.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })})
-                  </span>
-                  {/* More package details can be displayed here */}
-                </div>
-                <DialogFooter>
-                  <Button onClick={handleClosePackageDialog}>Close</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </>
-      )
-    }
-  },
-  {
-    accessorKey: 'start_date',
-    header: 'Start Date',
-    cell: ({ row }) => {
-      const startDate = parseISO(row.getValue('start_date'))
-      const formattedStartDate = format(startDate, 'dd/MM/yyyy HH:mm:ss')
-      return <div>{formattedStartDate}</div>
-    }
-  },
-  {
-    accessorKey: 'end_date',
-    header: 'End Date',
-    cell: ({ row }) => {
-      const endDate = parseISO(row.getValue('end_date'))
-      const formattedEndDate = format(endDate, 'dd/MM/yyyy HH:mm:ss')
-      return <div>{formattedEndDate}</div>
+      const value = row.getValue('created_at')
+      if (!value) return <div className='text-muted-foreground italic'>N/A</div>
+      try {
+        const created_at = parseISO(value as string)
+        const formattedCreatedDate = format(created_at, 'dd/MM/yyyy HH:mm:ss')
+        return <div>{formattedCreatedDate}</div>
+      } catch {
+        return <div className='text-muted-foreground italic'>Invalid date</div>
+      }
     }
   },
   {
@@ -193,9 +138,7 @@ export const columns: ColumnDef<MembershipType>[] = [
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status') as string
-      return (
-        <Badge className={`px-2 py-1 rounded-md ${membershipsStatusColors[status] || 'bg-gray-300'}`}>{status}</Badge>
-      )
+      return <Badge className={`px-2 py-1 rounded-md ${statusEquipmentolors[status] || 'bg-gray-300'}`}>{status}</Badge>
     }
   },
   {
@@ -203,13 +146,13 @@ export const columns: ColumnDef<MembershipType>[] = [
     enableHiding: false,
     header: 'Actions',
     cell: function Actions({ row }) {
-      const { setMembershipIdEdit, setMembershipDelete } = useContext(MembershipTableContext)
-      const openEditMembership = () => {
-        setMembershipIdEdit(row.original.card_id)
+      const { setEquipmentIdEdit, setEquipmentDelete } = useContext(EquipmentTableContext)
+      const openEditUser = () => {
+        setEquipmentIdEdit(row.original.equipment_id)
       }
 
-      const openDeleteMembership = () => {
-        setMembershipDelete(row.original)
+      const openDeleteUser = () => {
+        setEquipmentDelete(row.original)
       }
       return (
         <DropdownMenu modal={false}>
@@ -222,8 +165,8 @@ export const columns: ColumnDef<MembershipType>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditMembership}>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteMembership}>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={openEditUser}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={openDeleteUser}>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -231,21 +174,21 @@ export const columns: ColumnDef<MembershipType>[] = [
   }
 ]
 
-function AlertDialogDeleteMembership({
-  membershipDelete,
-  setMembershipDelete
+function AlertDialogDeleteEquipment({
+  equipmentDelete,
+  setEquipmentDelete
 }: {
-  membershipDelete: MembershipsItem | null
-  setMembershipDelete: (value: MembershipsItem | null) => void
+  equipmentDelete: EquipmentItem | null
+  setEquipmentDelete: (value: EquipmentItem | null) => void
 }) {
   const { showAlert } = useAlert()
 
-  const { mutateAsync } = useDeletePackageMutation()
-  const deletePackage = async () => {
-    if (membershipDelete) {
+  const { mutateAsync } = useDeleteEquipmentMutation()
+  const deleteEquipment = async () => {
+    if (equipmentDelete) {
       try {
-        const result = await mutateAsync(membershipDelete.package_id)
-        setMembershipDelete(null)
+        const result = await mutateAsync(equipmentDelete.equipment_id)
+        setEquipmentDelete(null)
         showAlert(result.payload.message, 'success')
       } catch (error) {
         handleErrorApi({
@@ -257,25 +200,27 @@ function AlertDialogDeleteMembership({
   }
   return (
     <AlertDialog
-      open={Boolean(membershipDelete)}
+      open={Boolean(equipmentDelete)}
       onOpenChange={(value) => {
         if (!value) {
-          setMembershipDelete(null)
+          setEquipmentDelete(null)
         }
       }}
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Package?</AlertDialogTitle>
+          <AlertDialogTitle>Delete Equipment?</AlertDialogTitle>
           <AlertDialogDescription>
-            Package{' '}
-            {/* <span className='bg-foreground text-primary-foreground rounded px-1'>{packageDelete?.package_name}</span>{' '} */}
+            Equipment{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {equipmentDelete?.equipment_name}
+            </span>{' '}
             will be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={deletePackage}>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={deleteEquipment}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -284,18 +229,17 @@ function AlertDialogDeleteMembership({
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
-export default function MembershipTable() {
+export default function EquipmentTable() {
   const searchParam = useSearchParams()
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
   const pageIndex = page - 1
   const params = Object.fromEntries(searchParam.entries())
-  const [membershipIdEdit, setMembershipIdEdit] = useState<number | undefined>()
-  const [membershipDelete, setMembershipDelete] = useState<MembershipsItem | null>(null)
+  const [equipmentIdEdit, setEquipmentIdEdit] = useState<number | undefined>()
+  const [equipmentDelete, setEquipmentDelete] = useState<EquipmentItem | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
-  const membershipsListQuery = useGetAllMemberships()
-  const data: any[] = membershipsListQuery.data?.payload.data ?? []
+  const equipmentListQuery = useGetAllEquipments()
+  const data: any[] = equipmentListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
-  const [searchQuery, setSearchQuery] = useState<string>('')
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
@@ -304,24 +248,16 @@ export default function MembershipTable() {
     pageSize: PAGE_SIZE //default page size
   })
 
-  // Filter data based on the search query (customer name)
   const filteredData = useMemo(() => {
     let result = data
 
-    // Filter by customer name
-    if (searchQuery) {
-      result = result.filter((row) => {
-        const customer = row.customers?.users
-        return customer?.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-      })
-    }
-    // Filter by membership status
+    // Filter by equipments status
     if (statusFilter && statusFilter !== 'all') {
       result = result.filter((row) => row.status === statusFilter)
     }
 
     return result
-  }, [data, searchQuery, statusFilter])
+  }, [data, statusFilter])
 
   const table = useReactTable({
     data: filteredData,
@@ -353,20 +289,20 @@ export default function MembershipTable() {
   }, [table, pageIndex])
 
   return (
-    <MembershipTableContext.Provider
-      value={{ setMembershipIdEdit, membershipIdEdit, membershipDelete, setMembershipDelete }}
+    <EquipmentTableContext.Provider
+      value={{ equipmentIdEdit, setEquipmentIdEdit, equipmentDelete, setEquipmentDelete }}
     >
       <div className='flex items-center justify-between pt-6 px-6'>
-        <h1 className='text-3xl font-bold'>Membership list</h1>
+        <h1 className='text-3xl font-bold text-gray-900'>Equipment list</h1>
       </div>
       <div className='w-full px-6'>
-        <EditMembership membershipId={membershipIdEdit} setId={setMembershipIdEdit} onSubmitSuccess={() => {}} />
-        {/* <AlertDialogDeletePackage packageDelete={packageDelete} setPackageDelete={setPackageDelete} /> */}
+        <EditEquipment equipmentId={equipmentIdEdit} setId={setEquipmentIdEdit} onSubmitSuccess={() => {}} />
+        <AlertDialogDeleteEquipment equipmentDelete={equipmentDelete} setEquipmentDelete={setEquipmentDelete} />
         <div className='flex items-center py-4'>
           <Input
-            placeholder='Search by customer name...'
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder='Filter Equipments Name...'
+            value={(table.getColumn('equipment_name')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('equipment_name')?.setFilterValue(event.target.value)}
             className='max-w-sm'
           />
           <Select value={statusFilter || 'all'} onValueChange={(value) => setStatusFilter(value || null)}>
@@ -375,20 +311,19 @@ export default function MembershipTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={'all'}>All Status</SelectItem>
-              <SelectItem className='bg-green-500 text-white mt-1' value={StatusMemberships.ACTIVE}>
+              <SelectItem className='bg-green-500 text-white mt-1' value={StatusEquipments.ACTIVE}>
                 Active
               </SelectItem>
-              <SelectItem className='bg-yellow-500 text-white mt-1' value={StatusMemberships.INACTIVE}>
-                Inactive
+              <SelectItem className='bg-yellow-500 text-white mt-1' value={StatusEquipments.MAINTENANCE}>
+                Maintenace
               </SelectItem>
-              <SelectItem className='bg-red-500 text-white !mt-1' value={StatusMemberships.EXPIRED}>
-                Expired
+              <SelectItem className='bg-red-500 text-white !mt-1' value={StatusEquipments.BROKEN}>
+                Broken
               </SelectItem>
             </SelectContent>
           </Select>
-
           <div className='ml-auto flex items-center gap-2'>
-            <AddMembership />
+            <AddEquipment />
           </div>
         </div>
         <div className='rounded-md border'>
@@ -434,11 +369,11 @@ export default function MembershipTable() {
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname={ROUTES.dashboardRoutes.memberships}
+              pathname={ROUTES.dashboardRoutes.equipments}
             />
           </div>
         </div>
       </div>
-    </MembershipTableContext.Provider>
+    </EquipmentTableContext.Provider>
   )
 }

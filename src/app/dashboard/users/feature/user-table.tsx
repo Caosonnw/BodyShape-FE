@@ -29,7 +29,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Role } from '@/constants/type'
+import { Role, StatusEquipments } from '@/constants/type'
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
 import { useDeleteUserMutation, useGetAllUsers } from '@/queries/useUser'
@@ -367,9 +367,7 @@ function UserDetailDialog({
               </AvatarFallback>
             </Avatar>
             <div className='flex justify-center items-center flex-col'>
-              <AlertDialogTitle className='text-xl font-bold text-gray-900 dark:text-white'>
-                {userDetails.full_name}
-              </AlertDialogTitle>
+              <AlertDialogTitle className='text-xl font-bold text-gray-900 '>{userDetails.full_name}</AlertDialogTitle>
               <Badge className={`mt-2 ${roleColors[userDetails.role as keyof typeof roleColors] || 'bg-gray-300'}`}>
                 {userDetails.role}
               </Badge>
@@ -383,7 +381,7 @@ function UserDetailDialog({
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           {/* Left Column - Basic Information */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-3'>Basic Information</h3>
+            <h3 className='text-lg font-semibold !text-gray-900  mb-3'>Basic Information</h3>
 
             <div className='flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors'>
               <Mail size={20} className='text-gray-500' />
@@ -421,7 +419,7 @@ function UserDetailDialog({
           {/* Right Column - Role-specific Information */}
           {(isCoach || isCustomer) && (
             <div className='space-y-4'>
-              <h3 className='text-lg font-semibold text-gray-900 mb-3 dark:text-white'>
+              <h3 className='text-lg font-semibold text-gray-900 mb-3 '>
                 {isCoach ? 'Coach Information' : 'Customer Information'}
               </h3>
 
@@ -494,7 +492,7 @@ function UserDetailDialog({
           <>
             <div className='border-t border-gray-200 my-4'></div>
             <div className='space-y-4'>
-              <h3 className='text-lg font-semibold text-gray-900 mb-3 dark:text-white'>
+              <h3 className='text-lg font-semibold text-gray-900 mb-3 '>
                 {isCoach
                   ? `Customers (${userDetails.coach_customers.length})`
                   : `Coaches (${userDetails.coach_customers.length})`}

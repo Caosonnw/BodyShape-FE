@@ -43,6 +43,7 @@ export default function EditMembership({
 }) {
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null)
+  const [isDataReady, setIsDataReady] = useState(false)
   const { showAlert } = useAlert()
   const { data } = useGetMembershipById({ membershipId: membershipId as number, enabled: Boolean(membershipId) })
   const { data: dataCustomers } = useGetAllUsers()
@@ -66,9 +67,9 @@ export default function EditMembership({
   useEffect(() => {
     if (data && data.payload && data.payload.data) {
       const membershipData = data.payload.data
-
       if (membershipData) {
         const { customer_id, package_id, start_date, status } = membershipData
+        console.log(start_date, 'start_date')
         form.reset({
           customer_id,
           package_id,
@@ -78,9 +79,12 @@ export default function EditMembership({
 
         setSelectedCustomer(customer_id)
         setSelectedPackage(package_id)
+        setIsDataReady(true)
       }
+    } else {
+      setIsDataReady(false)
     }
-  }, [data, form])
+  }, [data])
 
   const onSubmit = async (values: UpdateMembershipBodyType) => {
     if (updateMembership.isPending) return
@@ -120,7 +124,7 @@ export default function EditMembership({
         }
       }}
     >
-      <DialogContent className='sm:max-w-[1600px] max-h-screen overflow-auto'>
+      <DialogContent key={membershipId} className='sm:max-w-[1600px] max-h-screen overflow-auto'>
         <DialogHeader>
           <DialogTitle>Edit account</DialogTitle>
           <DialogDescription>Fields name, email, password are compulsory</DialogDescription>
@@ -252,26 +256,28 @@ export default function EditMembership({
                 />
 
                 {/* Start Date */}
-                <FormField
-                  control={form.control}
-                  name='start_date'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <DatetimePicker
-                          format={[
-                            ['months', 'days', 'years'],
-                            ['hours', 'minutes', 'am/pm']
-                          ]}
-                          value={field.value ? new Date(field.value) : new Date()}
-                          onChange={(date) => field.onChange(date ? date.toISOString() : '')}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {isDataReady && (
+                  <FormField
+                    control={form.control}
+                    name='start_date'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Start Date</FormLabel>
+                        <FormControl>
+                          <DatetimePicker
+                            format={[
+                              ['days', 'months', 'years'],
+                              ['hours', 'minutes', 'am/pm']
+                            ]}
+                            value={field.value ? new Date(field.value) : undefined}
+                            onChange={(date) => field.onChange(date ? date.toISOString() : '')}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </form>
             </Form>
           </div>

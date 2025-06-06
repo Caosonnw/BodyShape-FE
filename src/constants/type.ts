@@ -23,3 +23,9 @@ export const StatusMembershipsValues = [
   StatusMemberships.INACTIVE,
   StatusMemberships.EXPIRED
 ] as const
+
+export const StatusEquipments = {
+  ACTIVE: 'ACTIVE',
+  MAINTENANCE: 'MAINTENANCE',
+  BROKEN: 'BROKEN'
+} as const
