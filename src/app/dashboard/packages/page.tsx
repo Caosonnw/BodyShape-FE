@@ -1,10 +1,5 @@
-import PackageTable from '@/app/dashboard/packages/feature/package-table'
-import React, { Suspense } from 'react'
+import PackageTable from '@/app/dashboard/packages/features/package-table'
 
 export default function Packages() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <PackageTable />
-    </Suspense>
-  )
+  return <PackageTable />
 }

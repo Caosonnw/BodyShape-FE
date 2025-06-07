@@ -70,9 +70,18 @@ const dataSideBar = {
     },
     {
       title: 'Users',
-      url: ROUTES.dashboardRoutes.users,
       icon: UsersRound,
-      role: [Role.OWNER]
+      role: [Role.OWNER],
+      items: [
+        {
+          title: 'Users',
+          url: ROUTES.dashboardRoutes.users
+        },
+        {
+          title: 'Coach & Customer',
+          url: ROUTES.dashboardRoutes.coachCustomer
+        }
+      ]
     },
     {
       title: 'Training schedule',

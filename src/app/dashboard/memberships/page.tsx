@@ -1,10 +1,5 @@
-import MembershipTable from '@/app/dashboard/memberships/feature/membership-table'
-import React, { Suspense } from 'react'
+import MembershipTable from '@/app/dashboard/memberships/features/membership-table'
 
 export default function Memberships() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <MembershipTable />
-    </Suspense>
-  )
+  return <MembershipTable />
 }

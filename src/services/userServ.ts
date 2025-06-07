@@ -26,8 +26,11 @@ const userServ = {
   deleteUser: (userId: number) => {
     return http.delete<ApiResponseType>(`${prefix}/delete-user/${userId}`, null)
   },
-  getCoachCustomer: () => {
-    return http.get<ApiResponseType>(`/coach-customers/get-coach-customers`)
+  getUserRoleCoach: () => {
+    return http.get<ApiResponseType>(`${prefix}/get-user-role-coach`)
+  },
+  getUserRoleCustomer: () => {
+    return http.get<ApiResponseType>(`${prefix}/get-user-role-customer`)
   }
 }
 

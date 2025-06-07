@@ -1,10 +1,5 @@
-import EquipmentTable from '@/app/dashboard/equipments/feature/equipments-table'
-import React, { Suspense } from 'react'
+import EquipmentTable from '@/app/dashboard/equipments/features/equipments-table'
 
 export default function Equipments() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EquipmentTable />
-    </Suspense>
-  )
+  return <EquipmentTable />
 }

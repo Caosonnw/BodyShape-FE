@@ -1,9 +1,10 @@
 'use client'
 
-import AddMembership from '@/app/dashboard/memberships/feature/add-membership'
-import EditMembership from '@/app/dashboard/memberships/feature/edit-membership'
+import AddMembership from '@/app/dashboard/memberships/features/add-membership'
+import EditMembership from '@/app/dashboard/memberships/features/edit-membership'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
+import TableSkeleton from '@/components/table-skeleton'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +32,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { StatusMemberships } from '@/constants/type'
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
-import { useGetAllMemberships } from '@/queries/useMembership'
+import { useDeleteMembershipMutation, useGetAllMemberships } from '@/queries/useMembership'
 import { useDeletePackageMutation } from '@/queries/usePackage'
 import { MembershipListResType, MembershipType } from '@/schema/membership.schema'
 import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
@@ -239,12 +240,11 @@ function AlertDialogDeleteMembership({
   setMembershipDelete: (value: MembershipsItem | null) => void
 }) {
   const { showAlert } = useAlert()
-
-  const { mutateAsync } = useDeletePackageMutation()
+  const { mutateAsync } = useDeleteMembershipMutation()
   const deletePackage = async () => {
     if (membershipDelete) {
       try {
-        const result = await mutateAsync(membershipDelete.package_id)
+        const result = await mutateAsync(membershipDelete.card_id)
         setMembershipDelete(null)
         showAlert(result.payload.message, 'success')
       } catch (error) {
@@ -266,11 +266,11 @@ function AlertDialogDeleteMembership({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Package?</AlertDialogTitle>
+          <AlertDialogTitle>Delete Membership Card?</AlertDialogTitle>
           <AlertDialogDescription>
-            Package{' '}
-            {/* <span className='bg-foreground text-primary-foreground rounded px-1'>{packageDelete?.package_name}</span>{' '} */}
-            will be erased permanently.
+            Membership Card{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>{membershipDelete?.card_id}</span> will
+            be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -293,6 +293,7 @@ export default function MembershipTable() {
   const [membershipDelete, setMembershipDelete] = useState<MembershipsItem | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const membershipsListQuery = useGetAllMemberships()
+  const isLoading = membershipsListQuery.isLoading
   const data: any[] = membershipsListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -361,7 +362,7 @@ export default function MembershipTable() {
       </div>
       <div className='w-full px-6'>
         <EditMembership membershipId={membershipIdEdit} setId={setMembershipIdEdit} onSubmitSuccess={() => {}} />
-        {/* <AlertDialogDeletePackage packageDelete={packageDelete} setPackageDelete={setPackageDelete} /> */}
+        <AlertDialogDeleteMembership membershipDelete={membershipDelete} setMembershipDelete={setMembershipDelete} />
         <div className='flex items-center py-4'>
           <Input
             placeholder='Search by customer name...'
@@ -391,40 +392,46 @@ export default function MembershipTable() {
             <AddMembership />
           </div>
         </div>
-        <div className='rounded-md border'>
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    )
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                    ))}
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
+          <div className='rounded-md border'>
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </TableHead>
+                      )
+                    })}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className='h-24 text-center'>
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className='h-24 text-center'>
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
         <div className='flex items-center justify-end space-x-2 py-4'>
           <div className='text-xs text-muted-foreground py-4 flex-1 '>
             Showing <strong>{table.getPaginationRowModel().rows.length}</strong> of <strong>{data.length}</strong>{' '}

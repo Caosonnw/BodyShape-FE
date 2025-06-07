@@ -120,3 +120,37 @@ export const AccountIdParam = z.object({
 })
 
 export type AccountIdParamType = z.TypeOf<typeof AccountIdParam>
+
+export const UserByRoleCoachCustomer = z.object({
+  user_id: z.number(),
+  full_name: z.string(),
+  email: z.string(),
+  phone_number: z.string(),
+  gender: z.boolean().optional(),
+  date_of_birth: z.string(),
+  avatar: z.string(),
+  role: z.enum([Role.COACH, Role.CUSTOMER])
+})
+
+export const GetUserByRoleSchema = z.discriminatedUnion('role', [
+  UserByRoleCoachCustomer.extend({
+    role: z.literal(Role.COACH),
+    specialization: z.string().nullable().optional(),
+    bio: z.string().nullable().optional(),
+    rating_avg: z.string().nullable().optional()
+  }),
+  UserByRoleCoachCustomer.extend({
+    role: z.literal(Role.CUSTOMER),
+    goals: z.string().nullable().optional(),
+    health_info: z.string().nullable().optional()
+  })
+])
+
+export type GetUserByRoleType = z.TypeOf<typeof GetUserByRoleSchema>
+
+export const GetUserByRoleRes = z.object({
+  data: GetUserByRoleSchema,
+  message: z.string()
+})
+
+export type GetUserByRoleResType = z.TypeOf<typeof GetUserByRoleRes>

@@ -15,6 +15,6 @@ export const ROUTES = {
     chat: '/dashboard/chat',
     checkins: '/dashboard/checkins',
     equipments: '/dashboard/equipments',
-    orders: '/dashboard/orders'
+    coachCustomer: '/dashboard/coach-customer'
   }
 }

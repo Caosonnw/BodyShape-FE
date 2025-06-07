@@ -35,3 +35,13 @@ export const useUpdateMembershipMutation = () => {
     }
   })
 }
+
+export const useDeleteMembershipMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: membershipServ.deleteMembership,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['memberships'] })
+    }
+  })
+}

@@ -25,6 +25,20 @@ export const useGetUserById = ({ user_id, enabled }: { user_id: number; enabled:
   })
 }
 
+export const useGetUserRoleCoach = () => {
+  return useQuery({
+    queryKey: ['user-role-coach'],
+    queryFn: userServ.getUserRoleCoach
+  })
+}
+
+export const useGetUserRoleCustomer = () => {
+  return useQuery({
+    queryKey: ['user-role-customer'],
+    queryFn: userServ.getUserRoleCustomer
+  })
+}
+
 export const useCreateUserMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
@@ -80,12 +94,5 @@ export const useDeleteUserMutation = () => {
         queryKey: ['users']
       })
     }
-  })
-}
-
-export const useGetCoachCustomers = () => {
-  return useQuery({
-    queryKey: ['coach-customers'],
-    queryFn: userServ.getCoachCustomer
   })
 }
