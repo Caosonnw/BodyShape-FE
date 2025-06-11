@@ -8,13 +8,16 @@ export const ROUTES = {
   profile: '/profile',
   dashboard: '/dashboard',
   dashboardRoutes: {
+    profile: '/dashboard/profile',
     users: '/dashboard/users',
     schedules: '/dashboard/month-view',
     packages: '/dashboard/packages',
     memberships: '/dashboard/memberships',
     chat: '/dashboard/chat',
+    chatWithAI: '/dashboard/chat-with-ai',
     checkins: '/dashboard/checkins',
     equipments: '/dashboard/equipments',
-    coachCustomer: '/dashboard/coach-customer'
+    coachCustomer: '/dashboard/coach-customer',
+    trainingPlans: '/dashboard/training-plans'
   }
 }

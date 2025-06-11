@@ -1,14 +1,24 @@
 import { cn } from '@/lib/utils'
 import { Avatar } from '@/components/ui/avatar'
 import { format } from 'date-fns'
-import type { Message } from './chat-dashboard'
+import type { Message, User } from './chat-dashboard'
 
 interface ChatMessageProps {
   message: Message
+  user: User
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, user }: ChatMessageProps) {
   const isAgent = message.sender === 'agent'
+
+  function getInitials(name: string) {
+    return name
+      .split(' ')
+      .map((word) => word[0])
+      .join('')
+      .slice(0, 3)
+      .toUpperCase()
+  }
 
   return (
     <div className={cn('flex w-full', isAgent ? 'justify-end' : 'justify-start')}>
@@ -16,11 +26,11 @@ export function ChatMessage({ message }: ChatMessageProps) {
         <Avatar className='h-8 w-8 flex-shrink-0 flex items-center justify-center'>
           {isAgent ? (
             <div className='bg-primary h-full w-full rounded-full flex items-center justify-center'>
-              <span className='text-xs font-medium text-primary-foreground'>Admin</span>
+              <span className='text-xs font-medium text-primary-foreground'>AD</span>
             </div>
           ) : (
             <div className='bg-muted h-full w-full rounded-full flex items-center justify-center'>
-              <span className='text-xs font-medium'>KH</span>
+              <span className='text-xs font-medium'>{getInitials(user.name)}</span>
             </div>
           )}
         </Avatar>

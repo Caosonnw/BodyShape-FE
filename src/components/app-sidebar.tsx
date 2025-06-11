@@ -33,6 +33,7 @@ import { handleErrorApi } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { useAccountMe } from '@/queries/useUser'
 import {
+  Award,
   Bot,
   Calendar,
   ChevronsUpDown,
@@ -66,7 +67,7 @@ const dataSideBar = {
       title: 'Dash Board',
       url: ROUTES.dashboard,
       icon: LayoutDashboard,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+      role: [Role.OWNER, Role.ADMIN, Role.COACH]
     },
     {
       title: 'Users',
@@ -103,21 +104,36 @@ const dataSideBar = {
     },
     {
       title: 'Chat',
-      url: ROUTES.dashboardRoutes.chat,
       icon: MessageSquare,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+      role: [Role.OWNER, Role.ADMIN, Role.COACH],
+      items: [
+        {
+          title: 'Chat With Customers',
+          url: ROUTES.dashboardRoutes.chat
+        },
+        {
+          title: 'Chat With AI',
+          url: ROUTES.dashboardRoutes.chatWithAI
+        }
+      ]
     },
     {
-      title: 'Checkins',
-      url: ROUTES.dashboardRoutes.checkins,
-      icon: MapPinCheck,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+      title: 'Training Plans',
+      url: ROUTES.dashboardRoutes.trainingPlans,
+      icon: Award,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH]
     },
     {
       title: 'Equipments',
       url: ROUTES.dashboardRoutes.equipments,
       icon: Dumbbell,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+      role: [Role.OWNER, Role.ADMIN, Role.COACH]
+    },
+    {
+      title: 'Checkins',
+      url: ROUTES.dashboardRoutes.checkins,
+      icon: MapPinCheck,
+      role: [Role.OWNER, Role.ADMIN, Role.COACH]
     },
     {
       title: 'Models',
@@ -362,7 +378,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
                       <UserCog />
-                      Profile
+                      <Link href={ROUTES.dashboardRoutes.profile}>Profile</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Settings />

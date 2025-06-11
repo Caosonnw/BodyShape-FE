@@ -37,8 +37,6 @@ export function ChatAdmin({ user, messages, onSendMessage }: ChatProps) {
     switch (status) {
       case 'online':
         return 'bg-green-500'
-      case 'away':
-        return 'bg-yellow-500'
       case 'offline':
         return 'bg-gray-400'
       default:
@@ -49,13 +47,11 @@ export function ChatAdmin({ user, messages, onSendMessage }: ChatProps) {
   const getStatusText = (status: User['status']) => {
     switch (status) {
       case 'online':
-        return 'Đang trực tuyến'
-      case 'away':
-        return 'Vắng mặt'
+        return 'Online'
       case 'offline':
-        return 'Ngoại tuyến'
+        return 'Offline'
       default:
-        return 'Không xác định'
+        return 'Unknown'
     }
   }
 
@@ -88,7 +84,7 @@ export function ChatAdmin({ user, messages, onSendMessage }: ChatProps) {
             <p className='text-muted-foreground'>Chưa có tin nhắn nào</p>
           </div>
         ) : (
-          messages.map((message) => <ChatMessage key={message.id} message={message} />)
+          messages.map((message) => <ChatMessage key={message.id} message={message} user={user} />)
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -103,7 +99,7 @@ export function ChatAdmin({ user, messages, onSendMessage }: ChatProps) {
           className='flex gap-2'
         >
           <Input
-            placeholder='Nhập phản hồi cho khách hàng...'
+            placeholder='Enter your message ...'
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className='flex-1'

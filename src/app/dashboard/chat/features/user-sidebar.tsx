@@ -19,8 +19,6 @@ export function UserSidebar({ users, selectedUserId, onUserSelect }: UserSidebar
     switch (status) {
       case 'online':
         return 'bg-green-500'
-      case 'away':
-        return 'bg-yellow-500'
       case 'offline':
         return 'bg-gray-400'
       default:
@@ -31,13 +29,11 @@ export function UserSidebar({ users, selectedUserId, onUserSelect }: UserSidebar
   const getStatusText = (status: User['status']) => {
     switch (status) {
       case 'online':
-        return 'Trực tuyến'
-      case 'away':
-        return 'Vắng mặt'
+        return 'Online'
       case 'offline':
-        return 'Ngoại tuyến'
+        return 'Offline'
       default:
-        return 'Không xác định'
+        return 'Unknown'
     }
   }
 

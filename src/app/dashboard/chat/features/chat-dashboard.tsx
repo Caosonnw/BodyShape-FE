@@ -5,7 +5,7 @@ import { useMobile } from '@/hooks/use-mobile-for-chat'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { UserSidebar } from './user-sidebar'
-import { ChatAdmin } from '@/app/dashboard/chat/feature/chat-admin'
+import { ChatAdmin } from '@/app/dashboard/chat/features/chat-admin'
 
 export type Message = {
   id: string
@@ -22,7 +22,7 @@ export type User = {
   lastMessage?: string
   lastMessageTime?: Date
   unreadCount: number
-  status: 'online' | 'offline' | 'away'
+  status: 'online' | 'offline'
 }
 
 const sampleUsers: User[] = [
@@ -42,7 +42,7 @@ const sampleUsers: User[] = [
     lastMessage: 'Cảm ơn bạn đã hỗ trợ!',
     lastMessageTime: new Date(Date.now() - 15 * 60 * 1000),
     unreadCount: 0,
-    status: 'away'
+    status: 'offline'
   },
   {
     id: '3',
@@ -246,7 +246,7 @@ export function ChatDashboard() {
     <div className='flex h-screen w-full'>
       {/* Mobile menu button */}
       {isMobile && (
-        <div className='fixed top-4 left-4 z-50'>
+        <div className='fixed top-4 right-4 z-50'>
           <Button variant='outline' size='icon' onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className='h-4 w-4' /> : <Menu className='h-4 w-4' />}
           </Button>

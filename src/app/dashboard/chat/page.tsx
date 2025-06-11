@@ -1,4 +1,4 @@
-import { ChatDashboard } from "@/app/dashboard/chat/feature/chat-dashboard";
+import { ChatDashboard } from '@/app/dashboard/chat/features/chat-dashboard'
 
 export default function Chat() {
   return (
