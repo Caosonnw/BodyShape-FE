@@ -18,6 +18,10 @@ export const ROUTES = {
     checkins: '/dashboard/checkins',
     equipments: '/dashboard/equipments',
     coachCustomer: '/dashboard/coach-customer',
-    trainingPlans: '/dashboard/training-plans'
+    trainingPlans: '/dashboard/training-plans',
+    exercises: '/dashboard/exercises',
+    planExcercises: '/dashboard/plan-exercises',
+    workoutLogs: '/dashboard/workout-logs',
+    plans: '/dashboard/plan-exercises-for-customer'
   }
 }

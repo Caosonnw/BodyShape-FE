@@ -129,7 +129,7 @@ const Header = () => {
                       )}
                       {role === 'CUSTOMER' && (
                         <li>
-                          <Link href='/profile'>Profile</Link>
+                          <Link href='/dashboard'>Dashboard</Link>
                         </li>
                       )}
                       <li>

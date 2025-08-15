@@ -4,7 +4,7 @@ import { decodeToken } from '@/lib/utils'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-const privatePaths = ['/dashboard']
+const privatePaths = ['/admin']
 const unAuthPaths = ['/login', '/register']
 
 export function middleware(request: NextRequest) {

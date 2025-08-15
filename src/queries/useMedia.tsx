@@ -13,3 +13,9 @@ export const useUploadMediaMutation = () => {
     mutationFn: mediaServ.uploadMedia
   })
 }
+
+export const useUploadVideoExerciseMutation = () => {
+  return useMutation({
+    mutationFn: mediaServ.uploadVideoExercise
+  })
+}

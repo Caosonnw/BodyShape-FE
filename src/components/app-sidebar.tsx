@@ -34,7 +34,6 @@ import { useLogoutMutation } from '@/queries/useAuth'
 import { useAccountMe } from '@/queries/useUser'
 import {
   Award,
-  Bot,
   Calendar,
   ChevronsUpDown,
   CreditCard,
@@ -67,7 +66,7 @@ const dataSideBar = {
       title: 'Dash Board',
       url: ROUTES.dashboard,
       icon: LayoutDashboard,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH]
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
     },
     {
       title: 'Users',
@@ -88,7 +87,7 @@ const dataSideBar = {
       title: 'Training schedule',
       url: ROUTES.dashboardRoutes.schedules,
       icon: Calendar,
-      role: [Role.ADMIN, Role.COACH]
+      role: [Role.ADMIN, Role.COACH, Role.CUSTOMER]
     },
     {
       title: 'Packages',
@@ -103,12 +102,18 @@ const dataSideBar = {
       role: [Role.OWNER]
     },
     {
-      title: 'Chat',
+      title: 'Plans',
+      url: ROUTES.dashboardRoutes.plans,
+      icon: PieChart,
+      role: [Role.CUSTOMER]
+    },
+    {
+      title: 'Chats',
       icon: MessageSquare,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH],
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER],
       items: [
         {
-          title: 'Chat With Customers',
+          title: 'Chats',
           url: ROUTES.dashboardRoutes.chat
         },
         {
@@ -118,11 +123,33 @@ const dataSideBar = {
       ]
     },
     {
-      title: 'Training Plans',
-      url: ROUTES.dashboardRoutes.trainingPlans,
+      title: 'Training',
       icon: Award,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH]
+      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER],
+      items: [
+        {
+          title: 'Training Plans',
+          url: ROUTES.dashboardRoutes.trainingPlans,
+          role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+        },
+        {
+          title: 'Exercises',
+          url: ROUTES.dashboardRoutes.exercises,
+          role: [Role.OWNER, Role.ADMIN, Role.COACH]
+        },
+        {
+          title: 'Plan Exercises',
+          url: ROUTES.dashboardRoutes.planExcercises,
+          role: [Role.OWNER, Role.ADMIN, Role.COACH]
+        },
+        {
+          title: 'Workout Logs',
+          url: ROUTES.dashboardRoutes.workoutLogs,
+          role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+        }
+      ]
     },
+
     {
       title: 'Equipments',
       url: ROUTES.dashboardRoutes.equipments,
@@ -134,49 +161,6 @@ const dataSideBar = {
       url: ROUTES.dashboardRoutes.checkins,
       icon: MapPinCheck,
       role: [Role.OWNER, Role.ADMIN, Role.COACH]
-    },
-    {
-      title: 'Models',
-      url: '#',
-      icon: Bot,
-      items: [
-        {
-          title: 'General',
-          url: '#'
-        },
-        {
-          title: 'Team',
-          url: '#'
-        },
-        {
-          title: 'Billing',
-          url: '#'
-        },
-        {
-          title: 'Limits',
-          url: '#'
-        }
-      ]
-    }
-  ],
-  projects: [
-    {
-      name: 'Design Engineering',
-      url: '#',
-      icon: Frame,
-      role: [Role.OWNER]
-    },
-    {
-      name: 'Sales & Marketing',
-      url: '#',
-      icon: PieChart,
-      role: [Role.OWNER, Role.ADMIN]
-    },
-    {
-      name: 'Travel',
-      url: '#',
-      icon: Map,
-      role: [Role.OWNER, Role.ADMIN]
     }
   ]
 }
@@ -236,7 +220,6 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
 
   // Lọc menu theo role trước khi render:
   const filteredNavMain = React.useMemo(() => filterMenuByRole(dataSideBar.navMain, role ?? null), [role])
-  const filteredProjects = React.useMemo(() => filterMenuByRole(dataSideBar.projects, role ?? null), [role])
   return (
     <>
       <Sidebar collapsible='icon'>
@@ -259,50 +242,6 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           <SidebarGroup>
             <SidebarGroupLabel>Dash Board</SidebarGroupLabel>
             <RenderMenu menuData={filteredNavMain} />
-          </SidebarGroup>
-          <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
-            <SidebarGroupLabel>Projects</SidebarGroupLabel>
-            <SidebarMenu>
-              {filteredProjects.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.name}</span>
-                    </a>
-                  </SidebarMenuButton>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <SidebarMenuAction showOnHover>
-                        <MoreHorizontal />
-                        <span className='sr-only'>More</span>
-                      </SidebarMenuAction>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className='w-48 rounded-lg' side='bottom' align='end'>
-                      <DropdownMenuItem>
-                        <Folder className='text-muted-foreground' />
-                        <span>View Project</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Forward className='text-muted-foreground' />
-                        <span>Share Project</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <Trash2 className='text-muted-foreground' />
-                        <span>Delete Project</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </SidebarMenuItem>
-              ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton className='text-sidebar-foreground/70'>
-                  <MoreHorizontal className='text-sidebar-foreground/70' />
-                  <span>More</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
