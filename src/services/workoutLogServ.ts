@@ -10,6 +10,12 @@ const workoutLogServ = {
   getWorkoutLogById: (workoutLogId: number) => {
     return http.get<ApiResponseType>(`${prefix}/get-workout-log-by-id/${workoutLogId}`)
   },
+  getWorkoutLogsByCustomer: () => {
+    return http.get<ApiResponseType>(`${prefix}/get-workout-logs-by-customer`)
+  },
+  getWorkoutLogsByExercise: (exerciseId: number) => {
+    return http.get<ApiResponseType>(`${prefix}/get-workout-logs-by-exercise/${exerciseId}`)
+  },
   createWorkoutLog: (data: any) => {
     return http.post<ApiResponseType>(`${prefix}/create-workout-log`, data)
   },
