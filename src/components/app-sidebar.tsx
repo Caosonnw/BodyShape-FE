@@ -21,7 +21,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail
@@ -29,6 +28,7 @@ import {
 import { Role } from '@/constants/type'
 import { useAlert } from '@/context/AlertContext'
 import { useAppContext } from '@/context/AppProvider'
+import { useSelfPresence } from '@/hooks/use-self-presence'
 import { handleErrorApi } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAuth'
 import { useAccountMe } from '@/queries/useUser'
@@ -38,19 +38,13 @@ import {
   ChevronsUpDown,
   CreditCard,
   Dumbbell,
-  Folder,
-  Forward,
-  Frame,
   IdCard,
   LayoutDashboard,
   LogOut,
-  Map,
   MapPinCheck,
   MessageSquare,
-  MoreHorizontal,
   PieChart,
   Settings,
-  Trash2,
   UserCog,
   UsersRound
 } from 'lucide-react'
@@ -125,12 +119,12 @@ const dataSideBar = {
     {
       title: 'Training',
       icon: Award,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER],
+      role: [Role.OWNER, Role.ADMIN, Role.COACH],
       items: [
         {
           title: 'Training Plans',
           url: ROUTES.dashboardRoutes.trainingPlans,
-          role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+          role: [Role.OWNER, Role.ADMIN, Role.COACH]
         },
         {
           title: 'Exercises',
@@ -145,7 +139,7 @@ const dataSideBar = {
         {
           title: 'Workout Logs',
           url: ROUTES.dashboardRoutes.workoutLogs,
-          role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]
+          role: [Role.OWNER, Role.ADMIN, Role.COACH]
         }
       ]
     },
@@ -172,21 +166,31 @@ const roleColors: Record<string, string> = {
   [Role.CUSTOMER]: 'bg-green-500 text-white'
 }
 
+const statusColors: Record<string, string> = {
+  ONLINE: 'bg-emerald-500',
+  OFFLINE: 'bg-zinc-400 dark:bg-zinc-600'
+}
+
 export function AppSidebar({ children }: { children: React.ReactNode }) {
   const logoutMutation = useLogoutMutation()
   const router = useRouter()
   const { theme } = useTheme()
-  const [accessToken, setAccessToken] = React.useState<string | null>(null)
+  const { showAlert } = useAlert()
   const { role, setRole } = useAppContext()
+
+  // Lấy token một lần, không set vào deps để tránh loop
+  const [accessToken, setAccessToken] = React.useState<string | null>(null)
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken')
-      setAccessToken(token)
+      setAccessToken(localStorage.getItem('accessToken'))
     }
-  }, [accessToken])
+  }, [])
+
   const { data } = useAccountMe(accessToken)
-  const user = data?.payload.data
-  const { showAlert } = useAlert()
+  const user = data?.payload?.data
+
+  // Realtime status (fallback từ getMe)
+  const presenceStatus = useSelfPresence(accessToken, user?.user_id, user?.status)
 
   const handleLogout = async () => {
     if (logoutMutation.isPending) return
@@ -194,7 +198,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       await logoutMutation.mutateAsync()
       showAlert('Logged out successfully', 'success')
       setRole()
-      router.push(ROUTES.home)
+      router.push(ROUTES.login)
     } catch (error: any) {
       handleErrorApi({
         error,
@@ -220,6 +224,15 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
 
   // Lọc menu theo role trước khi render:
   const filteredNavMain = React.useMemo(() => filterMenuByRole(dataSideBar.navMain, role ?? null), [role])
+
+  const initials = (user?.full_name ?? 'U')
+    .split(' ')
+    .map((w: string) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+  const status = presenceStatus ?? 'OFFLINE'
+  const statusDotClass = statusColors[status]
   return (
     <>
       <Sidebar collapsible='icon'>
@@ -238,12 +251,14 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
+
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Dash Board</SidebarGroupLabel>
             <RenderMenu menuData={filteredNavMain} />
           </SidebarGroup>
         </SidebarContent>
+
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -253,24 +268,23 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                     size='lg'
                     className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
                   >
-                    <Avatar className='h-8 w-8 rounded-lg'>
-                      <AvatarImage
-                        src={
-                          user?.avatar
-                            ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
-                            : undefined
-                        }
-                        alt={user?.full_name}
+                    <div className='relative'>
+                      <Avatar className='h-8 w-8 rounded-lg'>
+                        <AvatarImage
+                          src={
+                            user?.avatar
+                              ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
+                              : undefined
+                          }
+                          alt={user?.full_name}
+                        />
+                        <AvatarFallback className='rounded-lg'>{initials}</AvatarFallback>
+                      </Avatar>
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-background ${statusDotClass}`}
+                        title={status}
                       />
-                      <AvatarFallback className='rounded-lg'>
-                        {user?.full_name
-                          ?.split(' ')
-                          .map((word: any) => word[0])
-                          .join('')
-                          .slice(0, 2)
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    </div>
                     <div className='grid flex-1 text-left text-sm leading-tight'>
                       <span className='truncate font-semibold'>{user?.full_name}</span>
                       <span className='truncate text-xs'>{user?.email}</span>
@@ -286,24 +300,24 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 >
                   <DropdownMenuLabel className='p-0 font-normal'>
                     <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
-                      <Avatar className='h-8 w-8 rounded-lg'>
-                        <AvatarImage
-                          src={
-                            user?.avatar
-                              ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
-                              : undefined
-                          }
-                          alt={user?.full_name}
+                      <div className='relative'>
+                        <Avatar className='h-8 w-8 rounded-lg'>
+                          <AvatarImage
+                            src={
+                              user?.avatar
+                                ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
+                                : undefined
+                            }
+                            alt={user?.full_name}
+                          />
+                          <AvatarFallback className='rounded-lg'>{initials}</AvatarFallback>
+                        </Avatar>
+                        <span
+                          className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-background ${statusDotClass}`}
+                          title={status}
                         />
-                        <AvatarFallback className='rounded-lg'>
-                          {user?.full_name
-                            ?.split(' ')
-                            .map((word: any) => word[0])
-                            .join('')
-                            .slice(0, 2)
-                            .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      </div>
+
                       <div className='grid flex-1 text-left text-sm leading-tight'>
                         <span className='truncate font-semibold'>{user?.full_name}</span>
                         <span className='truncate text-xs'>{user?.email}</span>

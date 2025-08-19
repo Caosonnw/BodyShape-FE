@@ -2,6 +2,8 @@ import type { THEMES_VALUES } from '@/constants/theme.const'
 
 export type TTheme = (typeof THEMES_VALUES)[number]
 
+export type Status = 'ONLINE' | 'OFFLINE'
+
 export type ApiExercise = {
   exercise_id: number
   name: string
