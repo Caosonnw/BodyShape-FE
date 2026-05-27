@@ -104,7 +104,7 @@ const dataSideBar = {
     {
       title: 'Chats',
       icon: MessageSquare,
-      role: [Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER],
+      role: [Role.COACH, Role.CUSTOMER],
       items: [
         {
           title: 'Chats',
@@ -143,7 +143,6 @@ const dataSideBar = {
         }
       ]
     },
-
     {
       title: 'Equipments',
       url: ROUTES.dashboardRoutes.equipments,

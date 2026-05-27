@@ -1,7 +1,7 @@
 'use client'
 
-import AddExercise from '@/app/dashboard/exercises/fetures/add-exercises'
-import EditExercise from '@/app/dashboard/exercises/fetures/edit-exercises'
+import AddPlanExercise from '@/app/dashboard/plan-exercises/features/add-plan-exercises'
+import EditPlanExercise from '@/app/dashboard/plan-exercises/features/edit-plan-exercises'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import TableSkeleton from '@/components/table-skeleton'
@@ -24,13 +24,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
 import { useDeleteEquipmentMutation } from '@/queries/useEquipment'
-import { useDeleteExerciseMutation, useGetAllExercises } from '@/queries/useExercise'
-import { ExerciseListResType } from '@/schema/exercise.schema'
+import { useGetAllPlanExercises } from '@/queries/usePlanExercise'
+import { PlanExerciseListResType, PlanExerciseType } from '@/schema/planExercise.schema'
 import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
 import {
   ColumnDef,
@@ -44,25 +43,24 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { format, parseISO } from 'date-fns'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
-type ExerciseItem = ExerciseListResType['data'][0]
+type PlanExerciseItem = PlanExerciseListResType['data'][0]
 
-const ExerciseTableContext = createContext<{
-  setExerciseIdEdit: (value: number) => void
-  exerciseIdEdit: number | undefined
-  exerciseDelete: ExerciseItem | null
-  setExerciseDelete: (value: ExerciseItem | null) => void
+const PlanExerciseTableContext = createContext<{
+  setPlanExerciseIdEdit: (value: number) => void
+  planExerciseIdEdit: number | undefined
+  planExerciseDelete: PlanExerciseItem | null
+  setPlanExerciseDelete: (value: PlanExerciseItem | null) => void
 }>({
-  setExerciseIdEdit: (value: number | undefined) => {},
-  exerciseIdEdit: undefined,
-  exerciseDelete: null,
-  setExerciseDelete: (value: ExerciseItem | null) => {}
+  setPlanExerciseIdEdit: (value: number | undefined) => {},
+  planExerciseIdEdit: undefined,
+  planExerciseDelete: null,
+  setPlanExerciseDelete: (value: PlanExerciseItem | null) => {}
 })
 
-export const columns: ColumnDef<ExerciseItem>[] = [
+export const columns: ColumnDef<PlanExerciseType>[] = [
   {
     id: 'stt',
     header: ({ column }) => (
@@ -81,87 +79,150 @@ export const columns: ColumnDef<ExerciseItem>[] = [
     accessorFn: (row, index) => index // Cho phép sắp xếp theo index
   },
   {
-    accessorKey: 'exercise_name',
-    header: 'Name',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('exercise_name')}</div>
-  },
-  {
-    accessorKey: 'description',
-    header: 'Description',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('description')}</div>
-  },
-  {
-    accessorKey: 'muscle_group',
-    header: 'Muscle Group',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('muscle_group')}</div>
-  },
-  {
-    accessorKey: 'equipment_needed',
-    header: 'Equipment Needed',
-    cell: ({ row }) => <div className='capitalize'>{row.getValue('equipment_needed')}</div>
-  },
-  {
-    accessorKey: 'video_url',
-    header: 'Video URL',
+    id: 'coaches.coach_id',
+    header: 'Coach ID',
+    accessorKey: 'coaches.coach_id',
     cell: ({ row }) => {
-      const videoUrl = row.getValue('video_url') as string
-      return videoUrl ? (
-        <a
-          href={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/videos/${videoUrl}`}
-          target='_blank'
-          title={videoUrl}
-          rel='noopener noreferrer'
-          className='text-blue-600 hover:underline truncate max-w-[200px] block'
-        >
-          {videoUrl}
-        </a>
-      ) : (
-        <div className='text-muted-foreground italic'>N/A</div>
+      const [open, setOpen] = useState(false)
+      const coach = row.original.coaches
+      return (
+        <>
+          <span className='text-sm'>{row.getValue('coaches.coach_id')}</span>
+          <Button size='sm' className='ml-2' onClick={() => setOpen(true)}>
+            More
+          </Button>
+          {open && (
+            <AlertDialog open={open} onOpenChange={setOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Coach Details</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    <div>
+                      <div>
+                        <strong>ID:</strong> {coach?.coach_id}
+                      </div>
+                      <div>
+                        <strong>Name:</strong> {coach?.full_name || 'N/A'}
+                      </div>
+                      <div>
+                        <strong>Email:</strong> {coach?.email || 'N/A'}
+                      </div>
+                      {/* Add more fields as needed */}
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Close</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </>
       )
     }
   },
   {
-    accessorKey: 'created_at',
-    header: 'Created At',
+    id: 'customer.customer_id',
+    header: 'Customer ID',
+    accessorKey: 'customer.customer_id',
     cell: ({ row }) => {
-      const value = row.getValue('created_at')
-      if (!value) return <div className='text-muted-foreground italic'>N/A</div>
-      try {
-        const created_at = parseISO(value as string)
-        const formattedCreatedDate = format(created_at, 'dd/MM/yyyy HH:mm:ss')
-        return <div>{formattedCreatedDate}</div>
-      } catch {
-        return <div className='text-muted-foreground italic'>Invalid date</div>
-      }
+      const [open, setOpen] = useState(false)
+      const customer = row.original.customer
+      return (
+        <>
+          <span className='text-sm'>{row.getValue('customer.customer_id')}</span>
+          <Button size='sm' className='ml-2' onClick={() => setOpen(true)}>
+            More
+          </Button>
+          {open && (
+            <AlertDialog open={open} onOpenChange={setOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Customer Details</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    <div>
+                      <div>
+                        <strong>ID:</strong> {customer?.customer_id}
+                      </div>
+                      <div>
+                        <strong>Name:</strong> {customer?.full_name || 'N/A'}
+                      </div>
+                      <div>
+                        <strong>Email:</strong> {customer?.email || 'N/A'}
+                      </div>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Close</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </>
+      )
     }
   },
   {
-    accessorKey: 'updated_at',
-    header: 'Updated At',
-    cell: ({ row }) => {
-      const value = row.getValue('updated_at')
-      if (!value) return <div className='text-muted-foreground italic'>N/A</div>
-      try {
-        const updated_at = parseISO(value as string)
-        const formattedUpdatedDate = format(updated_at, 'dd/MM/yyyy HH:mm:ss')
-        return <div>{formattedUpdatedDate}</div>
-      } catch {
-        return <div className='text-muted-foreground italic'>Invalid date</div>
-      }
-    }
+    id: 'day_number',
+    header: 'Day Number',
+    accessorKey: 'day_number',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('day_number')}</span>
+  },
+  {
+    id: 'sets',
+    header: 'Sets',
+    accessorKey: 'sets',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('sets')}</span>
+  },
+  {
+    id: 'reps',
+    header: 'Reps',
+    accessorKey: 'reps',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('reps')}</span>
+  },
+  {
+    id: 'weight',
+    header: 'Weight (kg)',
+    accessorKey: 'weight',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('weight')}</span>
+  },
+  {
+    id: 'rest_time',
+    header: 'Rest Time (s)',
+    accessorKey: 'rest_time',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('rest_time')}</span>
+  },
+  {
+    id: 'exercises.name',
+    header: 'Exercise Name',
+    accessorKey: 'exercise.name',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('exercises.name')}</span>
+  },
+  {
+    id: 'exercises.muscleGroup',
+    header: 'Muscle Group',
+    accessorKey: 'exercise.muscleGroup',
+    cell: ({ row }) => <span>{row.getValue('exercises.muscleGroup') || 'N/A'}</span>
+  },
+  {
+    id: 'exercises.equipment',
+    header: 'Equipment',
+    accessorKey: 'exercise.equipment',
+    cell: ({ row }) => <span>{row.getValue('exercises.equipment') || 'N/A'}</span>
   },
   {
     id: 'actions',
     enableHiding: false,
     header: 'Actions',
     cell: function Actions({ row }) {
-      const { setExerciseIdEdit, setExerciseDelete } = useContext(ExerciseTableContext)
-      const openEditExercise = () => {
-        setExerciseIdEdit(row.original.exercise_id)
+      const { setPlanExerciseIdEdit, setPlanExerciseDelete } = useContext(PlanExerciseTableContext)
+      const openEditUser = () => {
+        setPlanExerciseIdEdit(row.original.plan_exercise_id)
       }
 
-      const openDeleteExercise = () => {
-        setExerciseDelete(row.original)
+      const openDeleteUser = () => {
+        setPlanExerciseDelete(row.original)
       }
       return (
         <DropdownMenu modal={false}>
@@ -174,8 +235,8 @@ export const columns: ColumnDef<ExerciseItem>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditExercise}>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteExercise}>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={openEditUser}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={openDeleteUser}>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -187,16 +248,16 @@ function AlertDialogDeleteExercise({
   equipmentDelete,
   setEquipmentDelete
 }: {
-  equipmentDelete: ExerciseItem | null
-  setEquipmentDelete: (value: ExerciseItem | null) => void
+  equipmentDelete: PlanExerciseItem | null
+  setEquipmentDelete: (value: PlanExerciseItem | null) => void
 }) {
   const { showAlert } = useAlert()
 
-  const { mutateAsync } = useDeleteExerciseMutation()
+  const { mutateAsync } = useDeleteEquipmentMutation()
   const deleteEquipment = async () => {
     if (equipmentDelete) {
       try {
-        const result = await mutateAsync(equipmentDelete.exercise_id)
+        const result = await mutateAsync(equipmentDelete.plan_exercise_id)
         setEquipmentDelete(null)
         showAlert(result.payload.message, 'success')
       } catch (error) {
@@ -221,7 +282,9 @@ function AlertDialogDeleteExercise({
           <AlertDialogTitle>Delete Exercise?</AlertDialogTitle>
           <AlertDialogDescription>
             Exercise{' '}
-            <span className='bg-foreground text-primary-foreground rounded px-1'>{equipmentDelete?.exercise_name}</span>{' '}
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {equipmentDelete?.plan_exercise_id}
+            </span>{' '}
             will be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -236,16 +299,16 @@ function AlertDialogDeleteExercise({
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
-export default function ExercisesTable() {
+export default function PlanExerciseTable() {
   const searchParam = useSearchParams()
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
   const pageIndex = page - 1
   const params = Object.fromEntries(searchParam.entries())
-  const [exerciseIdEdit, setExerciseIdEdit] = useState<number | undefined>()
-  const [exerciseDelete, setExerciseDelete] = useState<ExerciseItem | null>(null)
-  const exerciseListQuery = useGetAllExercises()
-  const isLoading = exerciseListQuery.isLoading
-  const data: any[] = exerciseListQuery.data?.payload.data ?? []
+  const [planExerciseIdEdit, setPlanExerciseIdEdit] = useState<number | undefined>()
+  const [planExerciseDelete, setPlanExerciseDelete] = useState<PlanExerciseItem | null>(null)
+  const planEquipmentListQuery = useGetAllPlanExercises()
+  const isLoading = planEquipmentListQuery.isLoading
+  const data: any[] = planEquipmentListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -285,22 +348,18 @@ export default function ExercisesTable() {
   }, [table, pageIndex])
 
   return (
-    <ExerciseTableContext.Provider value={{ exerciseIdEdit, setExerciseIdEdit, exerciseDelete, setExerciseDelete }}>
+    <PlanExerciseTableContext.Provider
+      value={{ planExerciseIdEdit, setPlanExerciseIdEdit, planExerciseDelete, setPlanExerciseDelete }}
+    >
       <div className='flex items-center justify-between pt-6 px-6'>
-        <h1 className='text-3xl font-bold text-gray-900'>Exercise list</h1>
+        <h1 className='text-3xl font-bold text-gray-900'>Plan Exercise list</h1>
       </div>
       <div className='w-full px-6'>
-        <EditExercise exerciseId={exerciseIdEdit} setId={setExerciseIdEdit} onSubmitSuccess={() => {}} />
-        <AlertDialogDeleteExercise equipmentDelete={exerciseDelete} setEquipmentDelete={setExerciseDelete} />
+        <EditPlanExercise exerciseId={planExerciseIdEdit} setId={setPlanExerciseIdEdit} onSubmitSuccess={() => {}} />
+        <AlertDialogDeleteExercise equipmentDelete={planExerciseDelete} setEquipmentDelete={setPlanExerciseDelete} />
         <div className='flex items-center py-4'>
-          <Input
-            placeholder='Filter Exercises Name...'
-            value={(table.getColumn('exercise_name')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('exercise_name')?.setFilterValue(event.target.value)}
-            className='max-w-sm'
-          />
           <div className='ml-auto flex items-center gap-2'>
-            <AddExercise />
+            <AddPlanExercise />
           </div>
         </div>
         {isLoading ? (
@@ -357,6 +416,6 @@ export default function ExercisesTable() {
           </div>
         </div>
       </div>
-    </ExerciseTableContext.Provider>
+    </PlanExerciseTableContext.Provider>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import PlanExerciseRow from '@/app/dashboard/plan-exercises-for-customer/fetures/plan-exercise-row'
+import PlanExerciseRow from '@/app/dashboard/plan-exercises-for-customer/features/plan-exercise-row'
 import { AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'

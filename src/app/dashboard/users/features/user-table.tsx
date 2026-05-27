@@ -114,7 +114,7 @@ export const columns: ColumnDef<AccountType>[] = [
     header: ({ column }) => (
       <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')} className='w-[70px]'>
         No.
-        <CaretSortIcon className='ml-2 h-4 w-4' />
+        <CaretSortIcon className='w-4 h-4 ml-2' />
       </Button>
     ),
     cell: ({ row, table }) => {
@@ -160,7 +160,7 @@ export const columns: ColumnDef<AccountType>[] = [
       return (
         <Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Email
-          <CaretSortIcon className='ml-2 h-4 w-4' />
+          <CaretSortIcon className='w-4 h-4 ml-2' />
         </Button>
       )
     }
@@ -226,9 +226,9 @@ export const columns: ColumnDef<AccountType>[] = [
         return (
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant='ghost' className='h-8 w-8 p-0'>
+              <Button variant='ghost' className='w-8 h-8 p-0'>
                 <span className='sr-only'>Open menu</span>
-                <DotsHorizontalIcon className='h-4 w-4' />
+                <DotsHorizontalIcon className='w-4 h-4' />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
@@ -248,9 +248,9 @@ export const columns: ColumnDef<AccountType>[] = [
       return (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
+            <Button variant='ghost' className='w-8 h-8 p-0'>
               <span className='sr-only'>Open menu</span>
-              <DotsHorizontalIcon className='h-4 w-4' />
+              <DotsHorizontalIcon className='w-4 h-4' />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
@@ -302,7 +302,7 @@ function AlertDialogDeleteUser({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete User?</AlertDialogTitle>
           <AlertDialogDescription>
-            Account <span className='bg-foreground text-primary-foreground rounded px-1'>{userDelete?.full_name}</span>{' '}
+            Account <span className='px-1 rounded bg-foreground text-primary-foreground'>{userDelete?.full_name}</span>{' '}
             will be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -351,7 +351,7 @@ function UserDetailDialog({
       }}
     >
       <AlertDialogContent className='max-w-7xl max-h-[85vh] overflow-y-auto'>
-        <AlertDialogHeader className='text-center pb-2'>
+        <AlertDialogHeader className='pb-2 text-center'>
           <div className='flex flex-col items-center space-y-4'>
             <Avatar className='w-20 h-20'>
               <AvatarImage
@@ -362,11 +362,11 @@ function UserDetailDialog({
                 }
                 alt={userDetails.full_name}
               />
-              <AvatarFallback className='text-lg font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white'>
+              <AvatarFallback className='text-lg font-semibold text-white bg-gradient-to-br from-blue-500 to-purple-600'>
                 {getInitials(userDetails.full_name)}
               </AvatarFallback>
             </Avatar>
-            <div className='flex justify-center items-center flex-col'>
+            <div className='flex flex-col items-center justify-center'>
               <AlertDialogTitle className='text-xl font-bold text-gray-900 '>{userDetails.full_name}</AlertDialogTitle>
               <Badge className={`mt-2 ${roleColors[userDetails.role as keyof typeof roleColors] || 'bg-gray-300'}`}>
                 {userDetails.role}
@@ -375,15 +375,15 @@ function UserDetailDialog({
           </div>
         </AlertDialogHeader>
 
-        <div className='border-t border-gray-200 my-4'></div>
+        <div className='my-4 border-t border-gray-200'></div>
 
         {/* Two-column layout for better space utilization */}
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
           {/* Left Column - Basic Information */}
           <div className='space-y-4'>
             <h3 className='text-lg font-semibold !text-gray-900  mb-3'>Basic Information</h3>
 
-            <div className='flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors'>
+            <div className='flex items-center p-3 space-x-3 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100'>
               <Mail size={20} className='text-gray-500' />
               <div className='flex-1 min-w-0'>
                 <p className='text-sm font-medium text-gray-900'>Email</p>
@@ -391,7 +391,7 @@ function UserDetailDialog({
               </div>
             </div>
 
-            <div className='flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors'>
+            <div className='flex items-center p-3 space-x-3 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100'>
               <Phone size={20} className='text-gray-500' />
               <div className='flex-1 min-w-0'>
                 <p className='text-sm font-medium text-gray-900'>Phone Number</p>
@@ -399,7 +399,7 @@ function UserDetailDialog({
               </div>
             </div>
 
-            <div className='flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors'>
+            <div className='flex items-center p-3 space-x-3 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100'>
               <Calendar1 size={20} className='text-gray-500' />
               <div className='flex-1 min-w-0'>
                 <p className='text-sm font-medium text-gray-900'>Date of Birth</p>
@@ -407,7 +407,7 @@ function UserDetailDialog({
               </div>
             </div>
 
-            <div className='flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors'>
+            <div className='flex items-center p-3 space-x-3 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100'>
               <VenusAndMars size={20} className='text-gray-500' />
               <div className='flex-1 min-w-0'>
                 <p className='text-sm font-medium text-gray-900'>Gender</p>
@@ -419,13 +419,13 @@ function UserDetailDialog({
           {/* Right Column - Role-specific Information */}
           {(isCoach || isCustomer) && (
             <div className='space-y-4'>
-              <h3 className='text-lg font-semibold text-gray-900 mb-3 '>
+              <h3 className='mb-3 text-lg font-semibold text-gray-900 '>
                 {isCoach ? 'Coach Information' : 'Customer Information'}
               </h3>
 
               {isCoach && (
                 <>
-                  <div className='flex items-center space-x-3 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors'>
+                  <div className='flex items-center p-3 space-x-3 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100'>
                     <div className='flex-shrink-0'>
                       <svg className='w-5 h-5 text-blue-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path
@@ -442,7 +442,7 @@ function UserDetailDialog({
                     </div>
                   </div>
 
-                  <div className='flex items-start space-x-3 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors'>
+                  <div className='flex items-start p-3 space-x-3 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100'>
                     <Contact size={20} className='text-blue-500 mt-2.5' />
                     <div className='flex-1 min-w-0'>
                       <p className='text-sm font-medium text-gray-900'>Bio</p>
@@ -450,7 +450,7 @@ function UserDetailDialog({
                     </div>
                   </div>
 
-                  <div className='flex items-center space-x-3 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors'>
+                  <div className='flex items-center p-3 space-x-3 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100'>
                     <Star size={20} className='text-blue-500 mt-0.5' />
                     <div className='flex-1 min-w-0'>
                       <p className='text-sm font-medium text-gray-900'>Average Rating</p>
@@ -464,8 +464,8 @@ function UserDetailDialog({
 
               {isCustomer && (
                 <>
-                  <div className='flex items-start space-x-3 p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors'>
-                    <Heart size={20} className='text-green-500 mt-5' />
+                  <div className='flex items-start p-3 space-x-3 transition-colors rounded-lg bg-green-50 hover:bg-green-100'>
+                    <Heart size={20} className='mt-5 text-green-500' />
                     <div className='flex-1 min-w-0'>
                       <p className='text-sm font-medium text-gray-900'>Health Information</p>
                       <p className='text-sm text-gray-600'>
@@ -474,7 +474,7 @@ function UserDetailDialog({
                     </div>
                   </div>
 
-                  <div className='flex items-start space-x-3 p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors'>
+                  <div className='flex items-start p-3 space-x-3 transition-colors rounded-lg bg-green-50 hover:bg-green-100'>
                     <CircleCheckBig size={20} className='text-green-500 mt-1.5' />
                     <div className='flex-1 min-w-0'>
                       <p className='text-sm font-medium text-gray-900'>Goals</p>
@@ -490,15 +490,15 @@ function UserDetailDialog({
         {/* Relationships */}
         {(isCoach || isCustomer) && userDetails.coach_customers && userDetails.coach_customers.length > 0 && (
           <>
-            <div className='border-t border-gray-200 my-4'></div>
+            <div className='my-4 border-t border-gray-200'></div>
             <div className='space-y-4'>
-              <h3 className='text-lg font-semibold text-gray-900 mb-3 '>
+              <h3 className='mb-3 text-lg font-semibold text-gray-900 '>
                 {isCoach
                   ? `Customers (${userDetails.coach_customers.length})`
                   : `Coaches (${userDetails.coach_customers.length})`}
               </h3>
 
-              <div className='space-y-3 max-h-60 overflow-y-auto'>
+              <div className='space-y-3 overflow-y-auto max-h-60'>
                 {userDetails.coach_customers.map((relation: any, index: number) => {
                   const person = isCoach
                     ? {
@@ -523,7 +523,7 @@ function UserDetailDialog({
                   return (
                     <div
                       key={person.id}
-                      className='flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors'
+                      className='flex items-center p-3 space-x-3 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100'
                     >
                       <Avatar className='w-10 h-10'>
                         <AvatarImage
@@ -534,7 +534,7 @@ function UserDetailDialog({
                           }
                           alt={person.name}
                         />
-                        <AvatarFallback className='text-sm bg-gradient-to-br from-purple-500 to-pink-600 text-white'>
+                        <AvatarFallback className='text-sm text-white bg-gradient-to-br from-purple-500 to-pink-600'>
                           {getInitials(person.name)}
                         </AvatarFallback>
                       </Avatar>
@@ -615,7 +615,7 @@ export default function UserTable() {
 
   return (
     <AccountTableContext.Provider value={{ userIdEdit, setUserIdEdit, userDelete, setUserDelete, setUserDetails }}>
-      <div className='flex items-center justify-between pt-6 px-6'>
+      <div className='flex items-center justify-between px-6 pt-6'>
         <h1 className='text-3xl font-bold'>Users list</h1>
       </div>
       <div className='w-full px-6'>
@@ -652,14 +652,14 @@ export default function UserTable() {
             </SelectContent>
           </Select>
 
-          <div className='ml-auto flex items-center gap-2'>
+          <div className='flex items-center gap-2 ml-auto'>
             <AddUser />
           </div>
         </div>
         {isLoading ? (
           <TableSkeleton />
         ) : (
-          <div className='rounded-md border'>
+          <div className='border rounded-md'>
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -696,8 +696,8 @@ export default function UserTable() {
             </Table>
           </div>
         )}
-        <div className='flex items-center justify-end space-x-2 py-4'>
-          <div className='text-xs text-muted-foreground py-4 flex-1 '>
+        <div className='flex items-center justify-end py-4 space-x-2'>
+          <div className='flex-1 py-4 text-xs text-muted-foreground '>
             Showing <strong>{table.getPaginationRowModel().rows.length}</strong> of <strong>{data.length}</strong>{' '}
             results
           </div>

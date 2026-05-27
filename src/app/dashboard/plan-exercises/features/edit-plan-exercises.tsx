@@ -20,7 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-export default function EditExercise({
+export default function EditPlanExercise({
   exerciseId,
   setId,
   onSubmitSuccess

@@ -17,7 +17,7 @@ export default function Home() {
     useLoadingStore.getState().show()
     const timeout = setTimeout(() => {
       useLoadingStore.getState().hide()
-    }, 1750)
+    }, 1875)
     return () => clearTimeout(timeout)
   }, [])
 

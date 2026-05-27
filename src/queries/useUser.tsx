@@ -10,10 +10,11 @@ export const useAccountMe = (accessToken: any) => {
   })
 }
 
-export const useGetAllUsers = () => {
+export const useGetAllUsers = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ['users'],
-    queryFn: userServ.getAllUsers
+    queryFn: userServ.getAllUsers,
+    enabled
   })
 }
 

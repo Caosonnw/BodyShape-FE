@@ -8,7 +8,7 @@ import { Timer, NotebookPen, CheckCircle2, Dumbbell, PlayCircle } from 'lucide-r
 import { cn } from '@/lib/utils'
 import { useCreateWorkoutLogMutation } from '@/queries/useWorkoutLog'
 import { UIItem, WorkoutLog } from '@/types/types'
-import CreateLogForm from '@/app/dashboard/plan-exercises-for-customer/fetures/create-log-form'
+import CreateLogForm from '@/app/dashboard/plan-exercises-for-customer/features/create-log-form'
 
 export default function PlanExerciseRow({
   item,

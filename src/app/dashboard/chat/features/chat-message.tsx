@@ -26,7 +26,9 @@ export function ChatMessage({ me, message, user }: ChatMessageProps) {
     ? me?.avatar
       ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${me.avatar}`
       : undefined
-    : undefined
+    : user?.avatar
+      ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/public/images/${user.avatar}`
+      : undefined
 
   const avatarName = isMe ? me.full_name : user.full_name
 
@@ -51,6 +53,7 @@ export function ChatMessage({ me, message, user }: ChatMessageProps) {
           >
             <p className='text-sm whitespace-pre-wrap break-words'>{message.content}</p>
           </div>
+
           <p className={cn('text-xs text-muted-foreground mt-1', isMe ? 'text-right' : 'text-left')}>
             {format(message.timestamp, 'HH:mm')}
           </p>

@@ -1,5 +1,4 @@
-import WorkoutLogTable from '@/app/dashboard/workout-logs/fetures/workout-logs-table'
-import React from 'react'
+import WorkoutLogTable from '@/app/dashboard/workout-logs/features/workout-logs-table'
 
 export default function WorkoutLogs() {
   return <WorkoutLogTable />

@@ -1,14 +1,15 @@
 import coachCustomerServ from '@/services/coachCustomerServ'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-export const useGetAllCoachCustomers = () => {
+export const useGetAllCoachCustomers = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ['coach-customers'],
-    queryFn: coachCustomerServ.getAllCoachCustomers
+    queryFn: coachCustomerServ.getAllCoachCustomers,
+    enabled
   })
 }
 
-export const useGetCoachCustomers = () => {
+export const useGetCoachCustomers = (user_id: number) => {
   return useQuery({
     queryKey: ['coach-customers'],
     queryFn: coachCustomerServ.getCoachCustomers

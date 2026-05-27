@@ -12,9 +12,9 @@ import React, { useMemo, useState } from 'react'
 import { Accordion } from '@/components/ui/accordion'
 import { useGetWorkoutLogsByExercises } from '@/queries/useWorkoutLog'
 import { ApiExercise, ApiItem, UIItem, WorkoutLog } from '@/types/types'
-import EmptyState from '@/app/dashboard/plan-exercises-for-customer/fetures/empty-state'
-import PlanDaySection from '@/app/dashboard/plan-exercises-for-customer/fetures/plan-day-section'
-import Hints from '@/app/dashboard/plan-exercises-for-customer/fetures/hints'
+import EmptyState from '@/app/dashboard/plan-exercises-for-customer/features/empty-state'
+import PlanDaySection from '@/app/dashboard/plan-exercises-for-customer/features/plan-day-section'
+import Hints from '@/app/dashboard/plan-exercises-for-customer/features/hints'
 
 export default function PlanExerciseList({ className }: { className?: string }) {
   const { data, isLoading, isError } = useGetPlanExercisesByCustomer()

@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 export const userSchema = z.object({
-  user_id: z.number(),
   full_name: z.string(),
   email: z.string(),
   date_of_birth: z.string(),
@@ -10,18 +9,21 @@ export const userSchema = z.object({
 })
 
 export const coachSchema = z.object({
-  user_id: z.number(),
-  specialization: z.string().nullable(),
-  bio: z.string().nullable(),
-  rating_avg: z.number().nullable(),
-  users: userSchema
+  coach_id: z.number(),
+  full_name: z.string(),
+  email: z.string(),
+  date_of_birth: z.string(),
+  phone_number: z.string(),
+  avatar: z.string()
 })
 
 export const customerSchema = z.object({
-  user_id: z.number(),
-  health_info: z.string().nullable(),
-  goals: z.string().nullable(),
-  users: userSchema
+  customer_id: z.number(),
+  full_name: z.string(),
+  email: z.string(),
+  date_of_birth: z.string(),
+  phone_number: z.string(),
+  avatar: z.string()
 })
 
 export const trainingPlanSchema = z.object({
@@ -46,17 +48,20 @@ export const workoutLogSchema = z.object({
   actual_weight: z.number().int().positive(),
   notes: z.string().optional(),
   workout_date: z.string(),
+
   coaches: coachSchema,
-  customers: customerSchema,
+  customer: customerSchema,
   training_plans: trainingPlanSchema,
-  exercises: exerciseSchema
+  exercise: exerciseSchema
 })
 
 export type WorkoutLogType = z.infer<typeof workoutLogSchema>
 
 export const WorkoutLogListRes = z.object({
   data: z.array(workoutLogSchema),
-  message: z.string()
+  message: z.string(),
+  statusCode: z.number().optional(),
+  date: z.string().optional()
 })
 
 export type WorkoutLogListResType = z.infer<typeof WorkoutLogListRes>

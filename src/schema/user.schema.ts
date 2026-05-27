@@ -10,7 +10,8 @@ export const AccountSchema = z.object({
   gender: z.boolean().optional(),
   date_of_birth: z.string(),
   avatar: z.string(),
-  role: z.enum([Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER])
+  role: z.enum([Role.OWNER, Role.ADMIN, Role.COACH, Role.CUSTOMER]),
+  status: z.enum(['ONLINE', 'OFFLINE']).optional()
 })
 
 export type AccountType = z.TypeOf<typeof AccountSchema>

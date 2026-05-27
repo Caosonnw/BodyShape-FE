@@ -3,7 +3,8 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { SVGICON } from '@/components/constants/theme'
-import { ArrowRight, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from 'react-icons/fa'
 
 const Footer = () => {
   const update = new Date()
@@ -33,22 +34,22 @@ const Footer = () => {
                   <ul>
                     <li>
                       <a href='https://www.facebook.com/' target='_blank' rel='noreferrer'>
-                        <Facebook />
+                        <FaFacebook className='w-5 h-5' />
                       </a>
                     </li>
                     <li>
                       <a href='https://twitter.com/?lang=en' target='_blank' rel='noreferrer'>
-                        <Twitter />
+                        <FaTwitter className='w-5 h-5' />
                       </a>
                     </li>
                     <li>
                       <a href='https://www.instagram.com/?hl=en' target='_blank' rel='noreferrer'>
-                        <Instagram />
+                        <FaInstagram className='w-5 h-5' />
                       </a>
                     </li>
                     <li>
                       <a href='https://www.linkedin.com/feed/' target='_blank' rel='noreferrer'>
-                        <Linkedin />
+                        <FaLinkedin className='w-5 h-5' />
                       </a>
                     </li>
                   </ul>

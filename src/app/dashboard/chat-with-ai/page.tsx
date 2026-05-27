@@ -1,5 +1,4 @@
-import AIChatBox from '@/app/dashboard/chat-with-ai/fetures/chat-ai'
-import React from 'react'
+import AIChatBox from '@/app/dashboard/chat-with-ai/features/chat-ai'
 
 export default function ChatWithAI() {
   return <AIChatBox />

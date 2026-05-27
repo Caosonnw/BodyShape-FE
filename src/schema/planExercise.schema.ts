@@ -10,18 +10,21 @@ export const userSchema = z.object({
 })
 
 export const coachSchema = z.object({
-  user_id: z.number(),
-  specialization: z.string().nullable(),
-  bio: z.string().nullable(),
-  rating_avg: z.number().nullable(),
-  users: userSchema
+  coach_id: z.number(),
+  full_name: z.string(),
+  email: z.string(),
+  date_of_birth: z.string(),
+  phone_number: z.string(),
+  avatar: z.string()
 })
 
 export const customerSchema = z.object({
-  user_id: z.number(),
-  health_info: z.string().nullable(),
-  goals: z.string().nullable(),
-  users: userSchema
+  customer_id: z.number(),
+  full_name: z.string(),
+  email: z.string(),
+  date_of_birth: z.string(),
+  phone_number: z.string(),
+  avatar: z.string()
 })
 
 export const trainingPlanSchema = z.object({
@@ -46,8 +49,9 @@ export const planExerciseSchema = z.object({
   reps: z.number().int().positive(),
   weight: z.number().int().positive(),
   rest_time: z.number().int().positive(),
+
   coaches: coachSchema,
-  customers: customerSchema,
+  customer: customerSchema,
   training_plans: trainingPlanSchema,
   exercises: exerciseSchema
 })

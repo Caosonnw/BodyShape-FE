@@ -13,7 +13,10 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: 'BodyShape - Fitness, Workout & Gym Template',
-  description: 'BodyShape - Fitness, Workout & Gym Template'
+  description: 'BodyShape - Fitness, Workout & Gym Template',
+  icons: {
+    icon: '/favicon.ico'
+  }
 }
 
 export default function RootLayout({

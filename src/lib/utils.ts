@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import { UseFormSetError } from 'react-hook-form'
 import { toast } from 'sonner'
 import { twMerge } from 'tailwind-merge'
+import { decodeJwt } from 'jose'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -36,8 +37,12 @@ export const handleErrorApi = ({ error, setError }: HandleErrorApiParams) => {
   }
 }
 
+// export const decodeToken = (token: string) => {
+//   return jwt.decode(token) as TokenPayload
+// }
+
 export const decodeToken = (token: string) => {
-  return jwt.decode(token) as TokenPayload
+  return decodeJwt(token) as TokenPayload
 }
 
 const isBrowser = typeof window !== 'undefined'

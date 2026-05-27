@@ -8,7 +8,7 @@ export default function LoadingAnimation() {
 
   if (!isLoading) return null
   return (
-    <div className='fixed inset-0 flex items-center justify-center bg-white z-[9999]'>
+    <div className='fixed inset-0 flex items-center justify-center bg-white z-9999'>
       <div className='flex items-center justify-center h-full'>
         <Lottie loop animationData={LoadingAnimationBodyShape} style={{ width: 300, height: 300 }} />
       </div>

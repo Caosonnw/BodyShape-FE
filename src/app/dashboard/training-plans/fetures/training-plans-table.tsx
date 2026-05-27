@@ -2,6 +2,8 @@
 
 import AddExercise from '@/app/dashboard/exercises/fetures/add-exercises'
 import EditExercise from '@/app/dashboard/exercises/fetures/edit-exercises'
+import AddTrainingPlan from '@/app/dashboard/training-plans/features/add-training-plans'
+import EditTrainingPlan from '@/app/dashboard/training-plans/features/edit-training-plans'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import TableSkeleton from '@/components/table-skeleton'
@@ -320,17 +322,21 @@ export default function TrainingPlanTable() {
         <h1 className='text-3xl font-bold text-gray-900'>Training Plan list</h1>
       </div>
       <div className='w-full px-6'>
-        <EditExercise exerciseId={trainingPlanIdEdit} setId={setTrainingPlanIdEdit} onSubmitSuccess={() => {}} />
+        <EditTrainingPlan
+          trainingPlanId={trainingPlanIdEdit}
+          setTrainingPlanId={setTrainingPlanIdEdit}
+          onSubmitSuccess={() => {}}
+        />
         <AlertDialogDeleteExercise equipmentDelete={trainingPlanDelete} setEquipmentDelete={setTrainingPlanDelete} />
         <div className='flex items-center py-4'>
           <Input
-            placeholder='Filter Exercises Name...'
-            value={(table.getColumn('equipment_name')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('equipment_name')?.setFilterValue(event.target.value)}
+            placeholder='Filter Training Description Name...'
+            value={(table.getColumn('description')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('description')?.setFilterValue(event.target.value)}
             className='max-w-sm'
           />
           <div className='ml-auto flex items-center gap-2'>
-            <AddExercise />
+            <AddTrainingPlan />
           </div>
         </div>
         {isLoading ? (

@@ -1,7 +1,7 @@
 'use client'
 
-import AddExercise from '@/app/dashboard/exercises/fetures/add-exercises'
-import EditExercise from '@/app/dashboard/exercises/fetures/edit-exercises'
+import AddExercise from '@/app/dashboard/exercises/features/add-exercises'
+import EditExercise from '@/app/dashboard/exercises/features/edit-exercises'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import TableSkeleton from '@/components/table-skeleton'
@@ -28,9 +28,9 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
-import { useDeleteEquipmentMutation, useGetAllEquipments } from '@/queries/useEquipment'
-import { useGetAllWorkoutLogs } from '@/queries/useWorkoutLog'
-import { WorkoutLogListResType, WorkoutLogType } from '@/schema/workoutLog.schema'
+import { useDeleteEquipmentMutation } from '@/queries/useEquipment'
+import { useDeleteExerciseMutation, useGetAllExercises } from '@/queries/useExercise'
+import { ExerciseListResType } from '@/schema/exercise.schema'
 import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
 import {
   ColumnDef,
@@ -48,21 +48,21 @@ import { format, parseISO } from 'date-fns'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
-type WorkoutLogItem = WorkoutLogListResType['data'][0]
+type ExerciseItem = ExerciseListResType['data'][0]
 
-const WorkoutLogTableContext = createContext<{
-  setWorkoutLogIdEdit: (value: number) => void
-  workoutLogIdEdit: number | undefined
-  workoutLogDelete: WorkoutLogItem | null
-  setWorkoutLogDelete: (value: WorkoutLogItem | null) => void
+const ExerciseTableContext = createContext<{
+  setExerciseIdEdit: (value: number) => void
+  exerciseIdEdit: number | undefined
+  exerciseDelete: ExerciseItem | null
+  setExerciseDelete: (value: ExerciseItem | null) => void
 }>({
-  setWorkoutLogIdEdit: (value: number | undefined) => {},
-  workoutLogIdEdit: undefined,
-  workoutLogDelete: null,
-  setWorkoutLogDelete: (value: WorkoutLogItem | null) => {}
+  setExerciseIdEdit: (value: number | undefined) => {},
+  exerciseIdEdit: undefined,
+  exerciseDelete: null,
+  setExerciseDelete: (value: ExerciseItem | null) => {}
 })
 
-export const columns: ColumnDef<WorkoutLogType>[] = [
+export const columns: ColumnDef<ExerciseItem>[] = [
   {
     id: 'stt',
     header: ({ column }) => (
@@ -81,57 +81,87 @@ export const columns: ColumnDef<WorkoutLogType>[] = [
     accessorFn: (row, index) => index // Cho phép sắp xếp theo index
   },
   {
-    id: 'actual_sets',
-    header: 'Sets',
-    accessorKey: 'actual_sets',
-    cell: ({ row }) => <div>{row.getValue('actual_sets')}</div>
+    accessorKey: 'exercise_name',
+    header: 'Name',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('exercise_name')}</div>
   },
   {
-    id: 'actual_reps',
-    header: 'Reps',
-    accessorKey: 'actual_reps',
-    cell: ({ row }) => <div>{row.getValue('actual_reps')}</div>
+    accessorKey: 'description',
+    header: 'Description',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('description')}</div>
   },
   {
-    id: 'actual_weight',
-    header: 'Weight',
-    accessorKey: 'actual_weight',
-    cell: ({ row }) => <div>{row.getValue('actual_weight')}</div>
+    accessorKey: 'muscle_group',
+    header: 'Muscle Group',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('muscle_group')}</div>
   },
   {
-    id: 'workout_date',
-    header: 'Workout Date',
-    accessorKey: 'workout_date',
+    accessorKey: 'equipment_needed',
+    header: 'Equipment Needed',
+    cell: ({ row }) => <div className='capitalize'>{row.getValue('equipment_needed')}</div>
+  },
+  {
+    accessorKey: 'video_url',
+    header: 'Video URL',
     cell: ({ row }) => {
-      const value = row.getValue('workout_date')
+      const videoUrl = row.getValue('video_url') as string
+      return videoUrl ? (
+        <a
+          href={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/videos/${videoUrl}`}
+          target='_blank'
+          title={videoUrl}
+          rel='noopener noreferrer'
+          className='text-blue-600 hover:underline truncate max-w-[200px] block'
+        >
+          {videoUrl}
+        </a>
+      ) : (
+        <div className='text-muted-foreground italic'>N/A</div>
+      )
+    }
+  },
+  {
+    accessorKey: 'created_at',
+    header: 'Created At',
+    cell: ({ row }) => {
+      const value = row.getValue('created_at')
       if (!value) return <div className='text-muted-foreground italic'>N/A</div>
       try {
-        const workout_date = parseISO(value as string)
-        const formatedWorkoutDate = format(workout_date, 'dd/MM/yyyy HH:mm:ss')
-        return <div>{formatedWorkoutDate}</div>
+        const created_at = parseISO(value as string)
+        const formattedCreatedDate = format(created_at, 'dd/MM/yyyy HH:mm:ss')
+        return <div>{formattedCreatedDate}</div>
       } catch {
         return <div className='text-muted-foreground italic'>Invalid date</div>
       }
     }
   },
   {
-    id: 'notes',
-    header: 'Notes',
-    accessorKey: 'notes',
-    cell: ({ row }) => <div>{row.getValue('notes')}</div>
+    accessorKey: 'updated_at',
+    header: 'Updated At',
+    cell: ({ row }) => {
+      const value = row.getValue('updated_at')
+      if (!value) return <div className='text-muted-foreground italic'>N/A</div>
+      try {
+        const updated_at = parseISO(value as string)
+        const formattedUpdatedDate = format(updated_at, 'dd/MM/yyyy HH:mm:ss')
+        return <div>{formattedUpdatedDate}</div>
+      } catch {
+        return <div className='text-muted-foreground italic'>Invalid date</div>
+      }
+    }
   },
   {
     id: 'actions',
     enableHiding: false,
     header: 'Actions',
     cell: function Actions({ row }) {
-      const { setWorkoutLogIdEdit, setWorkoutLogDelete } = useContext(WorkoutLogTableContext)
-      const openEditUser = () => {
-        setWorkoutLogIdEdit(row.original.log_id)
+      const { setExerciseIdEdit, setExerciseDelete } = useContext(ExerciseTableContext)
+      const openEditExercise = () => {
+        setExerciseIdEdit(row.original.exercise_id)
       }
 
-      const openDeleteUser = () => {
-        setWorkoutLogDelete(row.original)
+      const openDeleteExercise = () => {
+        setExerciseDelete(row.original)
       }
       return (
         <DropdownMenu modal={false}>
@@ -144,8 +174,8 @@ export const columns: ColumnDef<WorkoutLogType>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditUser}>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteUser}>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={openEditExercise}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={openDeleteExercise}>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -157,16 +187,16 @@ function AlertDialogDeleteExercise({
   equipmentDelete,
   setEquipmentDelete
 }: {
-  equipmentDelete: WorkoutLogItem | null
-  setEquipmentDelete: (value: WorkoutLogItem | null) => void
+  equipmentDelete: ExerciseItem | null
+  setEquipmentDelete: (value: ExerciseItem | null) => void
 }) {
   const { showAlert } = useAlert()
 
-  const { mutateAsync } = useDeleteEquipmentMutation()
+  const { mutateAsync } = useDeleteExerciseMutation()
   const deleteEquipment = async () => {
     if (equipmentDelete) {
       try {
-        const result = await mutateAsync(equipmentDelete.log_id)
+        const result = await mutateAsync(equipmentDelete.exercise_id)
         setEquipmentDelete(null)
         showAlert(result.payload.message, 'success')
       } catch (error) {
@@ -191,8 +221,8 @@ function AlertDialogDeleteExercise({
           <AlertDialogTitle>Delete Exercise?</AlertDialogTitle>
           <AlertDialogDescription>
             Exercise{' '}
-            <span className='bg-foreground text-primary-foreground rounded px-1'>{equipmentDelete?.log_id}</span> will
-            be erased permanently.
+            <span className='bg-foreground text-primary-foreground rounded px-1'>{equipmentDelete?.exercise_name}</span>{' '}
+            will be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -206,16 +236,16 @@ function AlertDialogDeleteExercise({
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
-export default function WorkoutLogTable() {
+export default function ExercisesTable() {
   const searchParam = useSearchParams()
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
   const pageIndex = page - 1
   const params = Object.fromEntries(searchParam.entries())
-  const [workoutLogIdEdit, setWorkoutLogIdEdit] = useState<number | undefined>()
-  const [workoutLogDelete, setWorkoutLogDelete] = useState<WorkoutLogItem | null>(null)
-  const workoutLogListQuery = useGetAllWorkoutLogs()
-  const isLoading = workoutLogListQuery.isLoading
-  const data: any[] = workoutLogListQuery.data?.payload.data ?? []
+  const [exerciseIdEdit, setExerciseIdEdit] = useState<number | undefined>()
+  const [exerciseDelete, setExerciseDelete] = useState<ExerciseItem | null>(null)
+  const exerciseListQuery = useGetAllExercises()
+  const isLoading = exerciseListQuery.isLoading
+  const data: any[] = exerciseListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -255,20 +285,18 @@ export default function WorkoutLogTable() {
   }, [table, pageIndex])
 
   return (
-    <WorkoutLogTableContext.Provider
-      value={{ workoutLogIdEdit, setWorkoutLogIdEdit, workoutLogDelete, setWorkoutLogDelete }}
-    >
+    <ExerciseTableContext.Provider value={{ exerciseIdEdit, setExerciseIdEdit, exerciseDelete, setExerciseDelete }}>
       <div className='flex items-center justify-between pt-6 px-6'>
-        <h1 className='text-3xl font-bold text-gray-900'>Workout Log list</h1>
+        <h1 className='text-3xl font-bold text-gray-900'>Exercise list</h1>
       </div>
       <div className='w-full px-6'>
-        <EditExercise exerciseId={workoutLogIdEdit} setId={setWorkoutLogIdEdit} onSubmitSuccess={() => {}} />
-        <AlertDialogDeleteExercise equipmentDelete={workoutLogDelete} setEquipmentDelete={setWorkoutLogDelete} />
+        <EditExercise exerciseId={exerciseIdEdit} setId={setExerciseIdEdit} onSubmitSuccess={() => {}} />
+        <AlertDialogDeleteExercise equipmentDelete={exerciseDelete} setEquipmentDelete={setExerciseDelete} />
         <div className='flex items-center py-4'>
           <Input
-            placeholder='Filter Workout Log ID...'
-            value={(table.getColumn('log_id')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('log_id')?.setFilterValue(event.target.value)}
+            placeholder='Filter Exercises Name...'
+            value={(table.getColumn('exercise_name')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('exercise_name')?.setFilterValue(event.target.value)}
             className='max-w-sm'
           />
           <div className='ml-auto flex items-center gap-2'>
@@ -329,6 +357,6 @@ export default function WorkoutLogTable() {
           </div>
         </div>
       </div>
-    </WorkoutLogTableContext.Provider>
+    </ExerciseTableContext.Provider>
   )
 }
