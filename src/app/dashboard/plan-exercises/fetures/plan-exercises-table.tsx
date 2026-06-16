@@ -2,8 +2,6 @@
 
 import AddExercise from '@/app/dashboard/exercises/fetures/add-exercises'
 import EditExercise from '@/app/dashboard/exercises/fetures/edit-exercises'
-import AddTrainingPlan from '@/app/dashboard/training-plans/features/add-training-plans'
-import EditTrainingPlan from '@/app/dashboard/training-plans/features/edit-training-plans'
 import { ROUTES } from '@/common/path'
 import AutoPagination from '@/components/auto-pagination'
 import TableSkeleton from '@/components/table-skeleton'
@@ -31,9 +29,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useAlert } from '@/context/AlertContext'
 import { handleErrorApi } from '@/lib/utils'
 import { useDeleteEquipmentMutation } from '@/queries/useEquipment'
-import { useGetAllTrainingPlans } from '@/queries/useTrainingPlan'
-import { EquipmentType } from '@/schema/equipment.schema'
-import { TrainingPlanListResType, TrainingPlanType } from '@/schema/trainingPlan.schema'
+import { useGetAllPlanExercises } from '@/queries/usePlanExercise'
+import { PlanExerciseListResType, PlanExerciseType } from '@/schema/planExercise.schema'
 import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons'
 import {
   ColumnDef,
@@ -50,21 +47,21 @@ import {
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
-type TrainingPlanItem = TrainingPlanListResType['data'][0]
+type PlanExerciseItem = PlanExerciseListResType['data'][0]
 
-const TrainingPlanTableContext = createContext<{
-  setTrainingPlanIdEdit: (value: number) => void
-  trainingPlanIdEdit: number | undefined
-  trainingPlanDelete: TrainingPlanItem | null
-  setTrainingPlanDelete: (value: TrainingPlanItem | null) => void
+const PlanExerciseTableContext = createContext<{
+  setPlanExerciseIdEdit: (value: number) => void
+  planExerciseIdEdit: number | undefined
+  planExerciseDelete: PlanExerciseItem | null
+  setPlanExerciseDelete: (value: PlanExerciseItem | null) => void
 }>({
-  setTrainingPlanIdEdit: (value: number | undefined) => {},
-  trainingPlanIdEdit: undefined,
-  trainingPlanDelete: null,
-  setTrainingPlanDelete: (value: TrainingPlanItem | null) => {}
+  setPlanExerciseIdEdit: (value: number | undefined) => {},
+  planExerciseIdEdit: undefined,
+  planExerciseDelete: null,
+  setPlanExerciseDelete: (value: PlanExerciseItem | null) => {}
 })
 
-export const columns: ColumnDef<TrainingPlanType>[] = [
+export const columns: ColumnDef<PlanExerciseType>[] = [
   {
     id: 'stt',
     header: ({ column }) => (
@@ -149,8 +146,7 @@ export const columns: ColumnDef<TrainingPlanType>[] = [
                         <strong>ID:</strong> {customer?.user_id}
                       </div>
                       <div>
-                        <strong>Name:</strong>
-                        {customer?.users.full_name || 'N/A'}
+                        <strong>Name:</strong> {customer?.users.full_name || 'N/A'}
                       </div>
                       <div>
                         <strong>Email:</strong> {customer?.users.email || 'N/A'}
@@ -169,29 +165,65 @@ export const columns: ColumnDef<TrainingPlanType>[] = [
     }
   },
   {
-    id: 'description',
-    header: 'Description',
-    accessorKey: 'description',
-    cell: ({ row }) => <span className='text-sm'>{row.getValue('description')}</span>
+    id: 'day_number',
+    header: 'Day Number',
+    accessorKey: 'day_number',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('day_number')}</span>
   },
   {
-    id: 'diet_plan',
-    header: 'Diet Plan',
-    accessorKey: 'diet_plan',
-    cell: ({ row }) => <span className='text-sm'>{row.getValue('diet_plan')}</span>
+    id: 'sets',
+    header: 'Sets',
+    accessorKey: 'sets',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('sets')}</span>
+  },
+  {
+    id: 'reps',
+    header: 'Reps',
+    accessorKey: 'reps',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('reps')}</span>
+  },
+  {
+    id: 'weight',
+    header: 'Weight (kg)',
+    accessorKey: 'weight',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('weight')}</span>
+  },
+  {
+    id: 'rest_time',
+    header: 'Rest Time (s)',
+    accessorKey: 'rest_time',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('rest_time')}</span>
+  },
+  {
+    id: 'exercises.name',
+    header: 'Exercise Name',
+    accessorKey: 'exercise.name',
+    cell: ({ row }) => <span className='text-sm'>{row.getValue('exercises.name')}</span>
+  },
+  {
+    id: 'exercises.muscleGroup',
+    header: 'Muscle Group',
+    accessorKey: 'exercise.muscleGroup',
+    cell: ({ row }) => <span>{row.getValue('exercises.muscleGroup') || 'N/A'}</span>
+  },
+  {
+    id: 'exercises.equipment',
+    header: 'Equipment',
+    accessorKey: 'exercise.equipment',
+    cell: ({ row }) => <span>{row.getValue('exercises.equipment') || 'N/A'}</span>
   },
   {
     id: 'actions',
     enableHiding: false,
     header: 'Actions',
     cell: function Actions({ row }) {
-      const { setTrainingPlanIdEdit, setTrainingPlanDelete } = useContext(TrainingPlanTableContext)
-      const openEditTrainingPlan = () => {
-        setTrainingPlanIdEdit(row.original.plan_id)
+      const { setPlanExerciseIdEdit, setPlanExerciseDelete } = useContext(PlanExerciseTableContext)
+      const openEditUser = () => {
+        setPlanExerciseIdEdit(row.original.plan_exercise_id)
       }
 
-      const openDeleteTrainingPlan = () => {
-        setTrainingPlanDelete(row.original)
+      const openDeleteUser = () => {
+        setPlanExerciseDelete(row.original)
       }
       return (
         <DropdownMenu modal={false}>
@@ -204,8 +236,8 @@ export const columns: ColumnDef<TrainingPlanType>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditTrainingPlan}>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteTrainingPlan}>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={openEditUser}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={openDeleteUser}>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -217,8 +249,8 @@ function AlertDialogDeleteExercise({
   equipmentDelete,
   setEquipmentDelete
 }: {
-  equipmentDelete: TrainingPlanItem | null
-  setEquipmentDelete: (value: TrainingPlanItem | null) => void
+  equipmentDelete: PlanExerciseItem | null
+  setEquipmentDelete: (value: PlanExerciseItem | null) => void
 }) {
   const { showAlert } = useAlert()
 
@@ -226,7 +258,7 @@ function AlertDialogDeleteExercise({
   const deleteEquipment = async () => {
     if (equipmentDelete) {
       try {
-        const result = await mutateAsync(equipmentDelete.plan_id)
+        const result = await mutateAsync(equipmentDelete.plan_exercise_id)
         setEquipmentDelete(null)
         showAlert(result.payload.message, 'success')
       } catch (error) {
@@ -251,8 +283,10 @@ function AlertDialogDeleteExercise({
           <AlertDialogTitle>Delete Exercise?</AlertDialogTitle>
           <AlertDialogDescription>
             Exercise{' '}
-            <span className='bg-foreground text-primary-foreground rounded px-1'>{equipmentDelete?.plan_id}</span> will
-            be erased permanently.
+            <span className='bg-foreground text-primary-foreground rounded px-1'>
+              {equipmentDelete?.plan_exercise_id}
+            </span>{' '}
+            will be erased permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -266,16 +300,16 @@ function AlertDialogDeleteExercise({
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10
-export default function TrainingPlanTable() {
+export default function PlanExerciseTable() {
   const searchParam = useSearchParams()
   const page = searchParam.get('page') ? Number(searchParam.get('page')) : 1
   const pageIndex = page - 1
   const params = Object.fromEntries(searchParam.entries())
-  const [trainingPlanIdEdit, setTrainingPlanIdEdit] = useState<number | undefined>()
-  const [trainingPlanDelete, setTrainingPlanDelete] = useState<TrainingPlanItem | null>(null)
-  const trainingPlanListQuery = useGetAllTrainingPlans()
-  const isLoading = trainingPlanListQuery.isLoading
-  const data: any[] = trainingPlanListQuery.data?.payload.data ?? []
+  const [planExerciseIdEdit, setPlanExerciseIdEdit] = useState<number | undefined>()
+  const [planExerciseDelete, setPlanExerciseDelete] = useState<PlanExerciseItem | null>(null)
+  const planEquipmentListQuery = useGetAllPlanExercises()
+  const isLoading = planEquipmentListQuery.isLoading
+  const data: any[] = planEquipmentListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -315,28 +349,24 @@ export default function TrainingPlanTable() {
   }, [table, pageIndex])
 
   return (
-    <TrainingPlanTableContext.Provider
-      value={{ trainingPlanIdEdit, setTrainingPlanIdEdit, trainingPlanDelete, setTrainingPlanDelete }}
+    <PlanExerciseTableContext.Provider
+      value={{ planExerciseIdEdit, setPlanExerciseIdEdit, planExerciseDelete, setPlanExerciseDelete }}
     >
       <div className='flex items-center justify-between pt-6 px-6'>
-        <h1 className='text-3xl font-bold text-gray-900'>Training Plan list</h1>
+        <h1 className='text-3xl font-bold text-gray-900'>Plan Exercise list</h1>
       </div>
       <div className='w-full px-6'>
-        <EditTrainingPlan
-          trainingPlanId={trainingPlanIdEdit}
-          setTrainingPlanId={setTrainingPlanIdEdit}
-          onSubmitSuccess={() => {}}
-        />
-        <AlertDialogDeleteExercise equipmentDelete={trainingPlanDelete} setEquipmentDelete={setTrainingPlanDelete} />
+        <EditExercise exerciseId={planExerciseIdEdit} setId={setPlanExerciseIdEdit} onSubmitSuccess={() => {}} />
+        <AlertDialogDeleteExercise equipmentDelete={planExerciseDelete} setEquipmentDelete={setPlanExerciseDelete} />
         <div className='flex items-center py-4'>
-          <Input
-            placeholder='Filter Training Description Name...'
-            value={(table.getColumn('description')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('description')?.setFilterValue(event.target.value)}
+          {/* <Input
+            placeholder='Filter Plan Exercise Name...'
+            value={(table.getColumn('equipment_name')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => table.getColumn('equipment_name')?.setFilterValue(event.target.value)}
             className='max-w-sm'
-          />
+          /> */}
           <div className='ml-auto flex items-center gap-2'>
-            <AddTrainingPlan />
+            <AddExercise />
           </div>
         </div>
         {isLoading ? (
@@ -388,11 +418,11 @@ export default function TrainingPlanTable() {
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname={ROUTES.dashboardRoutes.trainingPlans}
+              pathname={ROUTES.dashboardRoutes.exercises}
             />
           </div>
         </div>
       </div>
-    </TrainingPlanTableContext.Provider>
+    </PlanExerciseTableContext.Provider>
   )
 }

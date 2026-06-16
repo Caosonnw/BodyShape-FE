@@ -12,8 +12,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'BodyShape - Fitness, Workout & Gym Template',
-  description: 'BodyShape - Fitness, Workout & Gym Template',
+  title: 'BodyShape - Fitness, Workout & Gym',
+  description: 'BodyShape - Fitness, Workout & Gym',
   icons: {
     icon: '/favicon.ico'
   }
